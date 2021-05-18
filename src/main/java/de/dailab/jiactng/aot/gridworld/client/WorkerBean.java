@@ -48,6 +48,8 @@ public class WorkerBean extends AbstractAgentBean {
 	private Boolean isHandlingOrder = false;
 	private Boolean hasArrivedAtTarget = false;
 
+	private Position position = null;
+
 
 	@Override
 	public void doStart() throws Exception {
@@ -105,15 +107,10 @@ public class WorkerBean extends AbstractAgentBean {
 				JiacMessage message = (JiacMessage) ((WriteCallEvent) event).getObject();
 				Object payload = message.getPayload();
 
-				if (payload instanceof WorkerConfirm) {
-					/* do something */
-
-				}
-
 				if (payload instanceof AssignOrderMessage) {
 					/** Order to assign to the agent */
 
-					ICommunicationAddress broker = message.getReplyToAddress();
+					ICommunicationAddress broker = message.getSender();
 
 					AssignOrderMessage assignOrderMessage = (AssignOrderMessage) message.getPayload();
 					Order order = assignOrderMessage.order;
@@ -137,6 +134,21 @@ public class WorkerBean extends AbstractAgentBean {
 					}
 
 					sendMessage(broker, assignOrderConfirm);
+
+				}
+
+				if (payload instanceof PositionMessage) {
+					/** Order to assign to the agent */
+
+					PositionMessage positionMessage = (PositionMessage) message.getPayload();
+					position = positionMessage.position;
+
+					/**
+					 *
+					 * DEBUGGING
+					 *
+					 */
+					System.out.println("WORKER RECEIVED " + positionMessage.toString());
 
 				}
 
