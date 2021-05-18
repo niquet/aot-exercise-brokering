@@ -127,6 +127,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 					AssignOrderConfirm assignOrderConfirm = new AssignOrderConfirm();
 					assignOrderConfirm.orderId = order.id;
+					assignOrderConfirm.gameId = assignOrderMessage.gameId;
 					assignOrderConfirm.workerId = thisAgent.getAgentId();
 
 					if (true) {

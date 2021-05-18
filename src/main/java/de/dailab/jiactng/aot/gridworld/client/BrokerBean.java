@@ -127,7 +127,7 @@ public class BrokerBean extends AbstractAgentBean {
 				sendMessage(server, takeOrderMessage);
 
 				// Save order into orderMap
-				Order order = (Order) message.getPayload();
+				Order order = ((OrderMessage) message.getPayload()).order;
 				this.orderMap.put(order.id, order);
 
 			}
