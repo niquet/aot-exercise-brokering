@@ -152,6 +152,7 @@ public class BrokerBean extends AbstractAgentBean {
 				// Send the order to the first agent
 				AssignOrderMessage assignOrderMessage = new AssignOrderMessage();
 				assignOrderMessage.order = this.orderMap.get(takeOrderMessage.orderId);
+				assignOrderMessage.gameId = this.orderMap.get(takeOrderMessage.gameId);
 				assignOrderMessage.server = this.server;
 
 				for(IAgentDescription agentDescription: this.agentDescriptions) {
