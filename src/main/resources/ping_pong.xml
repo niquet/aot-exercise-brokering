@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <import resource="classpath:de/dailab/jiactng/agentcore/conf/AgentNode.xml" />
+    <import resource="classpath:de/dailab/jiactng/agentcore/conf/Agent.xml" />
+    <import resource="classpath:de/dailab/jiactng/agentcore/conf/JMSMessaging.xml" />
+
+    <bean name="PingPongNode" parent="NodeWithJMX">
+        <property name="agents">
+            <list>
+                <ref bean="PingAgent" />
+                <ref bean="PongAgent" />
+            </list>
+        </property>
+    </bean>
+
+    <bean name="PingAgent" parent="SimpleAgent" scope="prototype">
+        <property name="agentBeans">
+            <list>
+                <ref bean="PingBean" />
+            </list>
+        </property>
+    </bean>
+
+    <bean name="PongAgent" parent="SimpleAgent" scope="prototype">
+        <property name="agentBeans">
+            <list>
+                <ref bean="PongBean" />
+            </list>
+        </property>
+    </bean>
+
+    <bean name="PingBean" class="examples.pingpong.PingBean" scope="prototype">
+        <property name="executionInterval" value="1000" />
+        <property name="logLevel" value="INFO" />
+    </bean>
+
+    <bean name="PongBean" class="examples.pingpong.PongBean" scope="prototype">
+        <property name="executionInterval" value="1000" />
+        <property name="logLevel" value="INFO" />
+    </bean>
+
+</beans>
