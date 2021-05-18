@@ -148,7 +148,8 @@ public class WorkerBean extends AbstractAgentBean {
 					 * DEBUGGING
 					 *
 					 */
-					System.out.println("WORKER RECEIVED " + positionMessage.toString());
+					//System.out.println("WORKER RECEIVED " + positionMessage.toString());
+					log.info("WORKER RECEIVED " + positionMessage.toString());
 
 				}
 

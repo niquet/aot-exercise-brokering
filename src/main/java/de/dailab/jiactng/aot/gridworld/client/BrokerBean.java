@@ -39,6 +39,12 @@ public class BrokerBean extends AbstractAgentBean {
 
 	private Map<String, Order> orderMap = new HashMap<>();
 
+	/* A Map to map worker Ids to IAgentDescription to get an adress with a worker Id
+	 this Map is not registered by the server and but only a mapping for us
+	 */
+	private Map<String, IAgentDescription> workerIdMap = new HashMap<>();
+
+
 	@Override
 	public void doStart() throws Exception {
 		/*
@@ -125,25 +131,31 @@ public class BrokerBean extends AbstractAgentBean {
 				PositionMessage positionMessage = new PositionMessage();
 
 				// TODO nicht mehr worker verwenden als zur Verfügung stehen
+
+				/**
+				 * Initialize the workerIdMap to get the agentDescription and especially the
+				 * MailBoxAdress of the workerAgent which we associated with a specific worker
+				 */
 				for (Worker worker: startGameResponse.initialWorkers) {
+					workerIdMap.put(worker.id, this.agentDescriptions.get(startGameResponse.initialWorkers.indexOf(worker)));
+				}
 
-					ICommunicationAddress workerAddress = null;
+				/**
+				 * Send the Position messages to each Agent for a specific worker
+				 * PositionMessages are sent to inform the worker where it is located
+				 */
+				for (Worker worker: startGameResponse.initialWorkers) {
+					IAgentDescription agentDescription = workerIdMap.get(worker.id);
+					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
 
-					for (IAgentDescription agentDescription: this.agentDescriptions) {
 
-						if (agentDescription.getAid().equals(worker.id)) {
-							workerAddress = agentDescription.getMessageBoxAddress();
-							break;
-						}
-
-					}
-
-					positionMessage.workerId =worker.id;
+					positionMessage.workerId = worker.id;
 					positionMessage.gameId = startGameResponse.gameId;
 					positionMessage.position = worker.position;
+					//System.out.println("ADRESS IS " + workerAddress);
 
 					sendMessage(workerAddress, positionMessage);
-					break;
+					//break;
 				}
 
 				// TODO maxturns fehlt
