@@ -9,7 +9,10 @@ import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.agentcore.ontology.AgentDescription;
 import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
 import de.dailab.jiactng.aot.gridworld.messages.*;
+import de.dailab.jiactng.aot.gridworld.model.GridworldGame;
 import de.dailab.jiactng.aot.gridworld.model.Order;
+import de.dailab.jiactng.aot.gridworld.model.Position;
+import de.dailab.jiactng.aot.gridworld.model.Worker;
 
 
 import java.io.Serializable;
@@ -31,6 +34,9 @@ public class BrokerBean extends AbstractAgentBean {
 	private Boolean hasGameStarted = false;
 	private ICommunicationAddress server = null;
 	private List<IAgentDescription> agentDescriptions = null;
+	private GridworldGame gridworldGame = null;
+
+	private Map<String, Order> orderMap = new HashMap<>();
 
 	@Override
 	public void doStart() throws Exception {
@@ -93,22 +99,35 @@ public class BrokerBean extends AbstractAgentBean {
 				/* do something */
 
 				// TODO
-				hasGameStarted = true;
+				this.hasGameStarted = true;
 				StartGameResponse startGameResponse = (StartGameResponse) message.getPayload();
+
 				int maxNumberOfAgents = startGameResponse.initialWorkers.size();
 				this.agentDescriptions = getMyWorkerAgents(maxNumberOfAgents);
+
+				// TODO handle movements and obstacles
+				this.gridworldGame = new GridworldGame();
+				for (Position position : startGameResponse.obstacles) {
+					this.gridworldGame.obstacles.add(position);
+				}
+
+				// TODO maxturns fehlt
 
 			}
 
 			if (payload instanceof OrderMessage) {
 
-				// TODO
+				// TODO entscheide, ob wir die Order wirklich annehmen wollen / können
 				// Take Order ?!
 				OrderMessage orderMessage = (OrderMessage) message.getPayload();
 				TakeOrderMessage takeOrderMessage = new TakeOrderMessage();
 				takeOrderMessage.orderId = orderMessage.order.id;
 				takeOrderMessage.brokerId = thisAgent.getAgentId();
 				sendMessage(server, takeOrderMessage);
+
+				// Save order into orderMap
+				Order order = (Order) message.getPayload();
+				this.orderMap.put(order.id, order);
 
 			}
 
@@ -121,13 +140,63 @@ public class BrokerBean extends AbstractAgentBean {
 
 				if (result == Result.FAIL) {
 					// Handle failed confirmation
+
+					// Remove order from orderMap as it was rejected by the server
+					this.orderMap.remove(takeOrderMessage.orderId);
 					continue;
 				}
 
-				// Assign order to WorkerBean
+				// TODO send serverAddress
+				// Assign order to Worker(Bean)
+				// Send the order to the first agent
+				AssignOrderMessage assignOrderMessage = new AssignOrderMessage();
+				assignOrderMessage.order = this.orderMap.get(takeOrderMessage.orderId);
+				assignOrderMessage.server = this.server;
 
+				for(IAgentDescription agentDescription: this.agentDescriptions) {
+					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
+					sendMessage(workerAddress, assignOrderMessage);
+					break;
+				}
 
 			}
+
+			if (payload instanceof AssignOrderConfirm) {
+
+				// TODO
+				AssignOrderConfirm assignOrderConfirm = (AssignOrderConfirm) message.getPayload();
+				Result result = assignOrderConfirm.state;
+
+				if (result == Result.FAIL) {
+					// Handle failed confirmation
+					continue;
+				}
+
+				// TODO Inform other workers that this task is taken
+
+			}
+
+			if (payload instanceof OrderCompleted) {
+
+				OrderCompleted orderCompleted = (OrderCompleted) message.getPayload();
+				Result result = orderCompleted.state;
+
+				if (result == Result.FAIL) {
+					// TODO Handle failed order completion
+					continue;
+				}
+
+				// TODO handle the reward
+
+			}
+
+			if (payload instanceof EndGameMessage) {
+
+				EndGameMessage endGameMessage = (EndGameMessage) message.getPayload();
+				// TODO lernen lernen lernen lol
+
+			}
+
 		}
 	}
 
