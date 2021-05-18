@@ -123,6 +123,7 @@ public class BrokerBean extends AbstractAgentBean {
 				TakeOrderMessage takeOrderMessage = new TakeOrderMessage();
 				takeOrderMessage.orderId = orderMessage.order.id;
 				takeOrderMessage.brokerId = thisAgent.getAgentId();
+				takeOrderMessage.gameId = this.gridworldGame.gameId;
 				sendMessage(server, takeOrderMessage);
 
 				// Save order into orderMap

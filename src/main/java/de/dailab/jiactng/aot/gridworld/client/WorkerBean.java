@@ -194,13 +194,13 @@ public class WorkerBean extends AbstractAgentBean {
 
 		int[] distances = { current.distance(N), current.distance(S), current.distance(E), current.distance(W) };
 
-		WorkerAction workerAction = new WorkerAction();
+		WorkerAction workerAction;
 		int index = -1;
 		int min = Integer.MAX_VALUE;
 
 		for (int i = 0; i < distances.length; i++) {
 
-			if (distances[i] != null && distances[i] < min) {
+			if (distances[i] < min) {
 				min = distances[i];
 				index = i;
 			}
@@ -208,9 +208,6 @@ public class WorkerBean extends AbstractAgentBean {
 		}
 
 		switch(index) {
-			case 0:
-				workerAction = WorkerAction.NORTH;
-				break;
 			case 1:
 				workerAction = WorkerAction.SOUTH;
 				break;
@@ -220,6 +217,7 @@ public class WorkerBean extends AbstractAgentBean {
 			case 3:
 				workerAction = WorkerAction.WEST;
 				break;
+			case 0:
 			default:
 				workerAction = WorkerAction.NORTH;
 				break;
