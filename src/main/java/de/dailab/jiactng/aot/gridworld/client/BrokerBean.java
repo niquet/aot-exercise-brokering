@@ -1,7 +1,6 @@
 package de.dailab.jiactng.aot.gridworld.client;
 
 import de.dailab.jiactng.agentcore.AbstractAgentBean;
-import de.dailab.jiactng.agentcore.AgentMBean;
 import de.dailab.jiactng.agentcore.action.Action;
 import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
 import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
@@ -10,6 +9,7 @@ import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.agentcore.ontology.AgentDescription;
 import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
 import de.dailab.jiactng.aot.gridworld.messages.*;
+import de.dailab.jiactng.aot.gridworld.model.Order;
 
 
 import java.io.Serializable;
@@ -27,8 +27,10 @@ public class BrokerBean extends AbstractAgentBean {
 	 * the communication address of the server and your workers, the current game ID,
 	 * your active orders, etc.
 	 */
-
-boolean start = true;
+	// TODO
+	private Boolean hasGameStarted = false;
+	private ICommunicationAddress server = null;
+	private List<IAgentDescription> agentDescriptions = null;
 
 	@Override
 	public void doStart() throws Exception {
@@ -64,33 +66,69 @@ boolean start = true;
 		 */
 		log.info("running...");
 
-		if(start) {
 
-			/* example for finding the server agent */
-			IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
-			if (serverAgent != null) {
-				ICommunicationAddress server = serverAgent.getMessageBoxAddress();
-				StartGameMessage newGame = new StartGameMessage();
-				newGame.brokerId = thisAgent.getAgentId();
-				newGame.gridFile = "/grids/04_1.grid";
-				sendMessage(server, newGame);
-				start = false;
-			} else {
-				System.out.println("SERVER NOT FOUND!");
+		/* example for finding the server agent */
+		IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
+		if (serverAgent != null) {
+			this.server = serverAgent.getMessageBoxAddress();
+
+			// TODO
+			if (!hasGameStarted) {
+				StartGameMessage startGameMessage = new StartGameMessage();
+				startGameMessage.brokerId = thisAgent.getAgentId();
+				startGameMessage.gridFile = "/grids/04_1.grid";
+				// Send StartGameMessage(BrokerID)
+				sendMessage(server, startGameMessage);
+			}
+
+		} else {
+			System.out.println("SERVER NOT FOUND!");
+		}
+
+		/* example of handling incoming messages without listener */
+		for (JiacMessage message : memory.removeAll(new JiacMessage())) {
+			Object payload = message.getPayload();
+
+			if (payload instanceof StartGameResponse) {
+				/* do something */
+
+				// TODO
+				hasGameStarted = true;
+				StartGameResponse startGameResponse = (StartGameResponse) message.getPayload();
+				int maxNumberOfAgents = startGameResponse.initialWorkers.size();
+				this.agentDescriptions = getMyWorkerAgents(maxNumberOfAgents);
+
+			}
+
+			if (payload instanceof OrderMessage) {
+
+				// TODO
+				// Take Order ?!
+				OrderMessage orderMessage = (OrderMessage) message.getPayload();
+				TakeOrderMessage takeOrderMessage = new TakeOrderMessage();
+				takeOrderMessage.orderId = orderMessage.order.id;
+				takeOrderMessage.brokerId = thisAgent.getAgentId();
+				sendMessage(server, takeOrderMessage);
+
+			}
+
+			if (payload instanceof TakeOrderConfirm) {
+
+				// TODO
+				// Got Order ?!
+				TakeOrderConfirm takeOrderMessage = (TakeOrderConfirm) message.getPayload();
+				Result result = takeOrderMessage.state;
+
+				if (result == Result.FAIL) {
+					// Handle failed confirmation
+					continue;
+				}
+
+				// Assign order to WorkerBean
+
+
 			}
 		}
-			/* example of handling incoming messages without listener */
-			for (JiacMessage message : memory.removeAll(new JiacMessage())) {
-				Object payload = message.getPayload();
-
-				if (payload instanceof StartGameResponse) {
-					/* do something */
-					for (IAgentDescription worker : getMyWorkerAgents(5)) {
-						sendMessage(worker.getMessageBoxAddress(), message.getPayload());
-					}
-				}
-			}
-
 	}
 
 
