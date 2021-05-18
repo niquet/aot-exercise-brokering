@@ -21,7 +21,7 @@
 				<bean parent="WorkerAgent" />
 				<bean parent="WorkerAgent" />
 				<bean parent="WorkerAgent" />
-<!--				<bean parent="WorkerAgent_variation" />-->
+<!--			<bean parent="WorkerAgent_variation" />-->
 			</list>
 		</property>
 	</bean>

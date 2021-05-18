@@ -9,6 +9,7 @@ import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.agentcore.ontology.AgentDescription;
 import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
 import de.dailab.jiactng.aot.gridworld.messages.*;
+import de.dailab.jiactng.aot.gridworld.model.Order;
 
 
 import java.io.Serializable;
@@ -26,8 +27,10 @@ public class BrokerBean extends AbstractAgentBean {
 	 * the communication address of the server and your workers, the current game ID,
 	 * your active orders, etc.
 	 */
-
-
+	// TODO
+	private Boolean hasGameStarted = false;
+	private ICommunicationAddress server = null;
+	private List<IAgentDescription> agentDescriptions = null;
 
 	@Override
 	public void doStart() throws Exception {
@@ -67,7 +70,17 @@ public class BrokerBean extends AbstractAgentBean {
 		/* example for finding the server agent */
 		IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
 		if (serverAgent != null) {
-			ICommunicationAddress server = serverAgent.getMessageBoxAddress();
+			this.server = serverAgent.getMessageBoxAddress();
+
+			// TODO
+			if (!hasGameStarted) {
+				StartGameMessage startGameMessage = new StartGameMessage();
+				startGameMessage.brokerId = thisAgent.getAgentId();
+				startGameMessage.gridFile = "/grids/04_1.grid";
+				// Send StartGameMessage(BrokerID)
+				sendMessage(server, startGameMessage);
+			}
+
 		} else {
 			System.out.println("SERVER NOT FOUND!");
 		}
@@ -78,6 +91,42 @@ public class BrokerBean extends AbstractAgentBean {
 
 			if (payload instanceof StartGameResponse) {
 				/* do something */
+
+				// TODO
+				hasGameStarted = true;
+				StartGameResponse startGameResponse = (StartGameResponse) message.getPayload();
+				int maxNumberOfAgents = startGameResponse.initialWorkers.size();
+				this.agentDescriptions = getMyWorkerAgents(maxNumberOfAgents);
+
+			}
+
+			if (payload instanceof OrderMessage) {
+
+				// TODO
+				// Take Order ?!
+				OrderMessage orderMessage = (OrderMessage) message.getPayload();
+				TakeOrderMessage takeOrderMessage = new TakeOrderMessage();
+				takeOrderMessage.orderId = orderMessage.order.id;
+				takeOrderMessage.brokerId = thisAgent.getAgentId();
+				sendMessage(server, takeOrderMessage);
+
+			}
+
+			if (payload instanceof TakeOrderConfirm) {
+
+				// TODO
+				// Got Order ?!
+				TakeOrderConfirm takeOrderMessage = (TakeOrderConfirm) message.getPayload();
+				Result result = takeOrderMessage.state;
+
+				if (result == Result.FAIL) {
+					// Handle failed confirmation
+					continue;
+				}
+
+				// Assign order to WorkerBean
+
+
 			}
 		}
 	}
