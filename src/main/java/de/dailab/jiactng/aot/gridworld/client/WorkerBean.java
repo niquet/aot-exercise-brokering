@@ -79,9 +79,11 @@ public class WorkerBean extends AbstractAgentBean {
 		public void notify(SpaceEvent<? extends IFact> event) {
 			if (event instanceof WriteCallEvent) {
 				JiacMessage message = (JiacMessage) ((WriteCallEvent) event).getObject();
-
+				System.out.println(message);
 				if (message.getPayload() instanceof WorkerConfirm) {
 					/* do something */
+
+					message.notify();
 				}
 			}
 		}

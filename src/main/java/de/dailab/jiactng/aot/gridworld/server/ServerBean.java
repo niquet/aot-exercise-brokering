@@ -63,20 +63,19 @@ public class ServerBean extends AbstractMethodExposingBean {
 	private double stepPenalty = 1.0;
 	
 	/** number of orders for newly created games */
-//	private int numOrders = 10;
+	private int numOrders = 10;
 	
 	/** number of workers per broker */
-//	private int numWorkers = 5;
+	private int numWorkers = 5;
 
 	/** size of the grid (both width and height) */
-//	private int gridSize = 10;
+	private int gridSize = 10;
 	
 	/** number of turns per game */
-//	private int numTurns = 100;
+	private int numTurns = 100;
 	
 	/** whether to reveal the obstacles in the start game message */
 	private Boolean revealObstacles = false;
-
 
 	// STATE
 	

@@ -1,6 +1,7 @@
 package de.dailab.jiactng.aot.gridworld.client;
 
 import de.dailab.jiactng.agentcore.AbstractAgentBean;
+import de.dailab.jiactng.agentcore.AgentMBean;
 import de.dailab.jiactng.agentcore.action.Action;
 import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
 import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
@@ -27,7 +28,7 @@ public class BrokerBean extends AbstractAgentBean {
 	 * your active orders, etc.
 	 */
 
-
+boolean start = true;
 
 	@Override
 	public void doStart() throws Exception {
@@ -63,23 +64,33 @@ public class BrokerBean extends AbstractAgentBean {
 		 */
 		log.info("running...");
 
+		if(start) {
 
-		/* example for finding the server agent */
-		IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
-		if (serverAgent != null) {
-			ICommunicationAddress server = serverAgent.getMessageBoxAddress();
-		} else {
-			System.out.println("SERVER NOT FOUND!");
-		}
-
-		/* example of handling incoming messages without listener */
-		for (JiacMessage message : memory.removeAll(new JiacMessage())) {
-			Object payload = message.getPayload();
-
-			if (payload instanceof StartGameResponse) {
-				/* do something */
+			/* example for finding the server agent */
+			IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
+			if (serverAgent != null) {
+				ICommunicationAddress server = serverAgent.getMessageBoxAddress();
+				StartGameMessage newGame = new StartGameMessage();
+				newGame.brokerId = thisAgent.getAgentId();
+				newGame.gridFile = "/grids/04_1.grid";
+				sendMessage(server, newGame);
+				start = false;
+			} else {
+				System.out.println("SERVER NOT FOUND!");
 			}
 		}
+			/* example of handling incoming messages without listener */
+			for (JiacMessage message : memory.removeAll(new JiacMessage())) {
+				Object payload = message.getPayload();
+
+				if (payload instanceof StartGameResponse) {
+					/* do something */
+					for (IAgentDescription worker : getMyWorkerAgents(5)) {
+						sendMessage(worker.getMessageBoxAddress(), message.getPayload());
+					}
+				}
+			}
+
 	}
 
 
