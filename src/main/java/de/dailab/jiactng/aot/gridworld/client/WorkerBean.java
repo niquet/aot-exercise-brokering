@@ -4,10 +4,10 @@ package de.dailab.jiactng.aot.gridworld.client;
 import de.dailab.jiactng.agentcore.action.Action;
 import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
 import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
-import de.dailab.jiactng.agentcore.ontology.AgentDescription;
-import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
 import de.dailab.jiactng.aot.gridworld.messages.*;
 import de.dailab.jiactng.aot.gridworld.model.Order;
+import de.dailab.jiactng.aot.gridworld.model.Position;
+import de.dailab.jiactng.aot.gridworld.model.WorkerAction;
 import org.sercho.masp.space.event.SpaceEvent;
 import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
@@ -18,6 +18,7 @@ import de.dailab.jiactng.agentcore.knowledge.IFact;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 
@@ -43,6 +44,8 @@ public class WorkerBean extends AbstractAgentBean {
 	 */
 
 	private Map<String, Map<Order, ICommunicationAddress>> currentOrders = new HashMap<>();
+	private LinkedList<String> orderQueue = new LinkedList<>();
+	private Boolean isHandlingOrder = false;
 	private Boolean hasArrivedAtTarget = false;
 
 
@@ -73,6 +76,14 @@ public class WorkerBean extends AbstractAgentBean {
 		 */
 		// TODO
 
+		// notify -> if new Order arrived
+			// evaluateOrder();
+			// sortOrders();
+
+		if(!isHandlingOrder) {
+
+		}
+
 	}
 
 
@@ -100,6 +111,7 @@ public class WorkerBean extends AbstractAgentBean {
 				}
 
 				if (payload instanceof AssignOrderMessage) {
+					/** Order to assign to the agent */
 
 					ICommunicationAddress broker = message.getReplyToAddress();
 
@@ -116,7 +128,12 @@ public class WorkerBean extends AbstractAgentBean {
 					AssignOrderConfirm assignOrderConfirm = new AssignOrderConfirm();
 					assignOrderConfirm.orderId = order.id;
 					assignOrderConfirm.workerId = thisAgent.getAgentId();
-					assignOrderConfirm.state = Result.SUCCESS;
+
+					if (true) {
+						assignOrderConfirm.state = Result.SUCCESS;
+					} else {
+						assignOrderConfirm.state = Result.FAIL;
+					}
 
 					sendMessage(broker, assignOrderConfirm);
 
@@ -152,6 +169,64 @@ public class WorkerBean extends AbstractAgentBean {
 		JiacMessage message = new JiacMessage(payload);
 		invoke(sendAction, new Serializable[] {message, receiver});
 		System.out.println("WORKER SENDING " + payload);
+	}
+
+	/** sort the orders according to a score and put them into a queue
+	 *
+	 */
+	private void sortOrders() {
+		// TODO
+	}
+
+	/** evaluate order score */
+	private void evaluateOrder(Order order) {
+		// TODO
+	}
+
+	/** calculate next move */
+	private WorkerAction getNextMove(Position current, Position target) {
+		// TODO
+		// [N, S, E, W]
+		Position N = new Position(current.x, current.y + 1);
+		Position S = new Position(current.x, current.y - 1);
+		Position E = new Position(current.x + 1, current.y);
+		Position W = new Position(current.x - 1, current.y);
+
+		int[] distances = { current.distance(N), current.distance(S), current.distance(E), current.distance(W) };
+
+		WorkerAction workerAction = new WorkerAction();
+		int index = -1;
+		int min = Integer.MAX_VALUE;
+
+		for (int i = 0; i < distances.length; i++) {
+
+			if (distances[i] != null && distances[i] < min) {
+				min = distances[i];
+				index = i;
+			}
+
+		}
+
+		switch(index) {
+			case 0:
+				workerAction = WorkerAction.NORTH;
+				break;
+			case 1:
+				workerAction = WorkerAction.SOUTH;
+				break;
+			case 2:
+				workerAction = WorkerAction.EAST;
+				break;
+			case 3:
+				workerAction = WorkerAction.WEST;
+				break;
+			default:
+				workerAction = WorkerAction.NORTH;
+				break;
+		}
+
+		return workerAction;
+
 	}
 
 }
