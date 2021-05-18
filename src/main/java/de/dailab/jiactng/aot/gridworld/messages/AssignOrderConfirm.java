@@ -15,7 +15,7 @@ public class AssignOrderConfirm extends GameMessage {
     /** the ID of the order */
     public String orderId;
 
-    /** the ID of the broker */
+    /** the ID of the worker */
     public String workerId;
 
     /** whether the worker accepted taking the order */
@@ -23,7 +23,7 @@ public class AssignOrderConfirm extends GameMessage {
 
     @Override
     public String toString() {
-        return String.format("TakeOrderConfirm(game=%d, order=%s, broker=%s, %s)", gameId, orderId, workerId, state);
+        return String.format("AssignOrderConfirm(game=%d, order=%s, broker=%s, %s)", gameId, orderId, workerId, state);
     }
 
 }

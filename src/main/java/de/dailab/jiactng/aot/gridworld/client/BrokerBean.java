@@ -1,6 +1,7 @@
 package de.dailab.jiactng.aot.gridworld.client;
 
 import de.dailab.jiactng.agentcore.AbstractAgentBean;
+import de.dailab.jiactng.agentcore.Agent;
 import de.dailab.jiactng.agentcore.action.Action;
 import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
 import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
@@ -85,6 +86,8 @@ public class BrokerBean extends AbstractAgentBean {
 				startGameMessage.gridFile = "/grids/04_1.grid";
 				// Send StartGameMessage(BrokerID)
 				sendMessage(server, startGameMessage);
+
+				this.hasGameStarted = true;
 			}
 
 		} else {
@@ -99,16 +102,48 @@ public class BrokerBean extends AbstractAgentBean {
 				/* do something */
 
 				// TODO
-				this.hasGameStarted = true;
+				// this.hasGameStarted = true;
 				StartGameResponse startGameResponse = (StartGameResponse) message.getPayload();
 
 				int maxNumberOfAgents = startGameResponse.initialWorkers.size();
 				this.agentDescriptions = getMyWorkerAgents(maxNumberOfAgents);
 
+				/**
+				 *
+				 * DEBUGGING
+				 *
+				 */
+				System.out.println("SERVER SENDING " + startGameResponse.toString());
+
 				// TODO handle movements and obstacles
 				this.gridworldGame = new GridworldGame();
 				for (Position position : startGameResponse.obstacles) {
 					this.gridworldGame.obstacles.add(position);
+				}
+
+				// Send each Agent their current position
+				PositionMessage positionMessage = new PositionMessage();
+
+				// TODO nicht mehr worker verwenden als zur Verfügung stehen
+				for (Worker worker: startGameResponse.initialWorkers) {
+
+					ICommunicationAddress workerAddress = null;
+
+					for (IAgentDescription agentDescription: this.agentDescriptions) {
+
+						if (agentDescription.getAid().equals(worker.id)) {
+							workerAddress = agentDescription.getMessageBoxAddress();
+							break;
+						}
+
+					}
+
+					positionMessage.workerId =worker.id;
+					positionMessage.gameId = startGameResponse.gameId;
+					positionMessage.position = worker.position;
+
+					sendMessage(workerAddress, positionMessage);
+					break;
 				}
 
 				// TODO maxturns fehlt
@@ -123,10 +158,18 @@ public class BrokerBean extends AbstractAgentBean {
 				TakeOrderMessage takeOrderMessage = new TakeOrderMessage();
 				takeOrderMessage.orderId = orderMessage.order.id;
 				takeOrderMessage.brokerId = thisAgent.getAgentId();
+				takeOrderMessage.gameId = orderMessage.gameId;
 				sendMessage(server, takeOrderMessage);
 
+				/**
+				 *
+				 * DEBUGGING
+				 *
+				 */
+				System.out.println("SERVER SENDING " + orderMessage.toString());
+
 				// Save order into orderMap
-				Order order = (Order) message.getPayload();
+				Order order = ((OrderMessage) message.getPayload()).order;
 				this.orderMap.put(order.id, order);
 
 			}
@@ -137,6 +180,13 @@ public class BrokerBean extends AbstractAgentBean {
 				// Got Order ?!
 				TakeOrderConfirm takeOrderMessage = (TakeOrderConfirm) message.getPayload();
 				Result result = takeOrderMessage.state;
+
+				/**
+				 *
+				 * DEBUGGING
+				 *
+				 */
+				System.out.println("SERVER SENDING " + takeOrderMessage.toString());
 
 				if (result == Result.FAIL) {
 					// Handle failed confirmation
@@ -151,6 +201,7 @@ public class BrokerBean extends AbstractAgentBean {
 				// Send the order to the first agent
 				AssignOrderMessage assignOrderMessage = new AssignOrderMessage();
 				assignOrderMessage.order = this.orderMap.get(takeOrderMessage.orderId);
+				assignOrderMessage.gameId = takeOrderMessage.gameId;
 				assignOrderMessage.server = this.server;
 
 				for(IAgentDescription agentDescription: this.agentDescriptions) {
