@@ -175,7 +175,7 @@ public class BrokerBean extends AbstractAgentBean {
 			if (payload instanceof PositionConfirm) {
 				PositionConfirm positionConfirm = (PositionConfirm) message.getPayload();
 				if(positionConfirm.state == Result.FAIL) {
-					String workerId = workerIdReverseAId.get(positionConfirm.workerId);
+					String workerId = workerIdReverseAID.get(positionConfirm.workerId);
 					IAgentDescription agentDescription = workerIdMap.get(workerId);
 					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
 
@@ -310,7 +310,7 @@ public class BrokerBean extends AbstractAgentBean {
 	/** get a different workerAddress than the one passed as the argument */
 	private void updateWorkerPosition(Position position, String workerAgentId) {
 
-		String workerId = workerIdReverseAId.get(workerAgentId);
+		String workerId = workerIdReverseAID.get(workerAgentId);
 		positionMap.replace(workerId, position);
 
 	}
@@ -325,7 +325,7 @@ public class BrokerBean extends AbstractAgentBean {
 		int minimum = Integer.MAX_VALUE;
 		int currentDistance = 0;
 
-		String[] workerAgentId = workerIdReverseAId.values().toArray(new String[0]);
+		String[] workerAgentId = workerIdReverseAID.values().toArray(new String[0]);
 		for (String currentWorkerId: workerAgentId) {
 
 			currentWorkerPosition = positionMap.get(currentWorkerId);

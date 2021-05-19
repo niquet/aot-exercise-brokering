@@ -98,26 +98,29 @@ public class WorkerBean extends AbstractAgentBean {
 			// evaluateOrder();
 			// sortOrders();
 
-		/*if(!isHandlingOrder) {
-
-		}*/
 
 		if(!priorityQueue.isEmpty()) {
 			/*String orderId = orderQueue.peekFirst();
 			Order firstOrder = currentOrders.get(orderId);
 			System.out.println("ORDER IS " + firstOrder);*/
 
-			Order firstOrder = priorityQueue.element();
+			Order firstOrder = handleOrder; //priorityQueue.element();
 
 			/**
 			 * We handle the order
 			 * send message to server
 			 */
-			if(firstOrder.position == position) {
-				isHandlingOrder = true;
+			/*if(firstOrder.position.equals(position)) {
+				hasArrivedAtTarget = true;
 				// TODO Send message to server
+				WorkerMessage orderFinished = new WorkerMessage();
+				orderFinished.gameId = gameId;
+				orderFinished.workerId = workerIdForServer;
+				orderFinished.action = WorkerAction.ORDER;
 
-			} else {
+				sendMessage(orderToAddress.get(handleOrder), orderFinished);
+
+			} else {*/
 				if(position == null)
 					return;
 				WorkerMessage move = new WorkerMessage();
@@ -127,10 +130,6 @@ public class WorkerBean extends AbstractAgentBean {
 				System.out.println("WORKERIDFORSERVER " + workerIdForServer);
 
 				sendMessage(orderToAddress.get(firstOrder), move);
-
-			}
-
-
 
 		}
 
@@ -157,8 +156,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 				if (payload instanceof AssignOrderMessage) {
 					/** Order to assign to the agent */
-					if(gameId == null)
-						gameId = ((AssignOrderMessage) message.getPayload()).gameId;
+					if (gameId == null) gameId = ((AssignOrderMessage) message.getPayload()).gameId;
 
 					ICommunicationAddress broker = message.getSender();
 
@@ -166,28 +164,34 @@ public class WorkerBean extends AbstractAgentBean {
 
 					Order order = assignOrderMessage.order;
 					ICommunicationAddress server = assignOrderMessage.server;
-				if(position != null) {
-					//Map<Order, ICommunicationAddress> orderWithServer = new HashMap<>();
-					orderToAddress.put(order, server);
-					//currentOrders.put(order.id, order);
-					priorityQueue.add(order);
-					//orderQueue.push(order.id);
+					if (position != null) {
+						//Map<Order, ICommunicationAddress> orderWithServer = new HashMap<>();
+						orderToAddress.put(order, server);
+						//currentOrders.put(order.id, order);
+						priorityQueue.add(order);
+						//orderQueue.push(order.id);
 
-					// TODO do something / evaluate
+						// TODO do something / evaluate
 
-					AssignOrderConfirm assignOrderConfirm = new AssignOrderConfirm();
-					assignOrderConfirm.orderId = order.id;
-					assignOrderConfirm.gameId = assignOrderMessage.gameId;
-					assignOrderConfirm.workerId = thisAgent.getAgentId();
+						AssignOrderConfirm assignOrderConfirm = new AssignOrderConfirm();
+						assignOrderConfirm.orderId = order.id;
+						assignOrderConfirm.gameId = assignOrderMessage.gameId;
+						assignOrderConfirm.workerId = thisAgent.getAgentId();
 
-					if (priorityQueue.element() == order) {
-						assignOrderConfirm.state = Result.SUCCESS;
-					} else {
-						assignOrderConfirm.state = Result.FAIL;
+						if (handleOrder == null) handleOrder = order;
+						//position.distance(order.position) <= position.distance(handleOrder.position)
+						//TODO reasons we don't want to take the order
+						if (position.distance(order.position) <= position.distance(handleOrder.position)) {
+							if (priorityQueue.element() == order) {
+								assignOrderConfirm.state = Result.SUCCESS;
+								handleOrder = order;
+							} else {
+								assignOrderConfirm.state = Result.FAIL;
+							}
+
+							sendMessage(broker, assignOrderConfirm);
+						}
 					}
-
-					sendMessage(broker, assignOrderConfirm);
-				}
 				}
 
 				if (payload instanceof PositionMessage) {
@@ -216,7 +220,7 @@ public class WorkerBean extends AbstractAgentBean {
 					}
 
 					/**
-					 * Only set position if it is not for us
+					 * Only set position if it is for us
 					 */
 					if(position == null || workerIdForServer == null) {
 						position = positionMessage.position;
@@ -241,7 +245,7 @@ public class WorkerBean extends AbstractAgentBean {
 					Result result = workerConfirm.state;
 
 					if (result == Result.FAIL) {
-
+						System.out.println("FAIL - Message not confirmed");
 						// TODO
 						return;
 					}
@@ -259,11 +263,14 @@ public class WorkerBean extends AbstractAgentBean {
 						System.out.println("POSITION " + position);
 
 					}
+				}
 
-					// Agent has arrived at target
-					// TODO
-
-
+				if (payload instanceof OrderCompleted){
+					// TODO if FAIL anders reagieren?
+					priorityQueue.poll();
+					System.out.println("SUCCESS " + handleOrder);
+					handleOrder = priorityQueue.element();
+					hasArrivedAtTarget = false;
 				}
 
 			}
@@ -293,6 +300,10 @@ public class WorkerBean extends AbstractAgentBean {
 	/** calculate next move */
 	private WorkerAction getNextMove(Position current, Position target) {
 		// TODO
+		if (current.equals(target)) {
+			hasArrivedAtTarget = true;
+			return WorkerAction.ORDER;
+		}
 		// [N, S, E, W]
 		Position N = new Position(current.x, current.y - 1);
 		Position S = new Position(current.x, current.y + 1);
@@ -314,6 +325,8 @@ public class WorkerBean extends AbstractAgentBean {
 
 		}
 
+
+
 		switch(index) {
 			case 1:
 				workerAction = WorkerAction.SOUTH;
@@ -325,8 +338,10 @@ public class WorkerBean extends AbstractAgentBean {
 				workerAction = WorkerAction.WEST;
 				break;
 			case 0:
-			default:
 				workerAction = WorkerAction.NORTH;
+				break;
+			default:
+				workerAction = WorkerAction.ORDER;
 				break;
 		}
 
