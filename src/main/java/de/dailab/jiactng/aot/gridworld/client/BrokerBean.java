@@ -10,10 +10,7 @@ import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.agentcore.ontology.AgentDescription;
 import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
 import de.dailab.jiactng.aot.gridworld.messages.*;
-import de.dailab.jiactng.aot.gridworld.model.GridworldGame;
-import de.dailab.jiactng.aot.gridworld.model.Order;
-import de.dailab.jiactng.aot.gridworld.model.Position;
-import de.dailab.jiactng.aot.gridworld.model.Worker;
+import de.dailab.jiactng.aot.gridworld.model.*;
 
 
 import java.io.Serializable;
@@ -49,7 +46,8 @@ public class BrokerBean extends AbstractAgentBean {
 	// Map AgentID to wroker ID
 	private Map<String, String> workerIdReverseAId = new HashMap<>();
 
-
+	// TODO
+	private ArrayList<WorkerEstimate> workerEstimates = new ArrayList<>();
 
 	@Override
 	public void doStart() throws Exception {
@@ -65,6 +63,7 @@ public class BrokerBean extends AbstractAgentBean {
 		 * a SpaceObserver for specific purposes
 		 */
 		log.info("starting...");
+
 	}
 
 
@@ -142,11 +141,11 @@ public class BrokerBean extends AbstractAgentBean {
 				 * Initialize the workerIdMap to get the agentDescription and especially the
 				 * MailBoxAdress of the workerAgent which we associated with a specific worker
 				 *
-				 */
+
 				for (Worker worker: startGameResponse.initialWorkers) {
 					workerIdMap.put(worker.id, this.agentDescriptions.get(startGameResponse.initialWorkers.indexOf(worker)));
 					workerIdReverseAId.put(this.agentDescriptions.get(startGameResponse.initialWorkers.indexOf(worker)).getAid(), worker.id);
-				}
+				} */
 
 				/**
 				 * Send the Position messages to each Agent for a specific worker
@@ -155,6 +154,9 @@ public class BrokerBean extends AbstractAgentBean {
 				 */
 				for (Worker worker: startGameResponse.initialWorkers) {
 					positionMap.put(worker.id, worker.position);
+
+					workerIdMap.put(worker.id, this.agentDescriptions.get(startGameResponse.initialWorkers.indexOf(worker)));
+					workerIdReverseAId.put(this.agentDescriptions.get(startGameResponse.initialWorkers.indexOf(worker)).getAid(), worker.id);
 
 					IAgentDescription agentDescription = workerIdMap.get(worker.id);
 					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
