@@ -225,21 +225,21 @@ public class BrokerBean extends AbstractAgentBean {
 
 				// TODO
 				// Got Order ?!
-				TakeOrderConfirm takeOrderMessage = (TakeOrderConfirm) message.getPayload();
-				Result result = takeOrderMessage.state;
+				TakeOrderConfirm takeOrderConfirm = (TakeOrderConfirm) message.getPayload();
+				Result result = takeOrderConfirm.state;
 
 				/**
 				 *
 				 * DEBUGGING
 				 *
 				 */
-				System.out.println("SERVER SENDING " + takeOrderMessage.toString());
+				System.out.println("SERVER SENDING " + takeOrderConfirm.toString());
 
 				if (result == Result.FAIL) {
 					// Handle failed confirmation
 
 					// Remove order from orderMap as it was rejected by the server
-					this.orderMap.remove(takeOrderMessage.orderId);
+					this.orderMap.remove(takeOrderConfirm.orderId);
 					continue;
 				}
 
@@ -247,8 +247,8 @@ public class BrokerBean extends AbstractAgentBean {
 				// Assign order to Worker(Bean)
 				// Send the order to the first agent
 				AssignOrderMessage assignOrderMessage = new AssignOrderMessage();
-				assignOrderMessage.order = this.orderMap.get(takeOrderMessage.orderId);
-				assignOrderMessage.gameId = takeOrderMessage.gameId;
+				assignOrderMessage.order = this.orderMap.get(takeOrderConfirm.orderId);
+				assignOrderMessage.gameId = takeOrderConfirm.gameId;
 				assignOrderMessage.server = this.server;
 
 				ICommunicationAddress workerAddress = decideOrderAssigment(assignOrderMessage.order);
@@ -265,7 +265,8 @@ public class BrokerBean extends AbstractAgentBean {
 				if (result == Result.FAIL) {
 					// Handle failed confirmation
 					// TODO
-					// ICommunicationAddress alternativeWorkerAddress = getAlternativeWorkerAddress(((AssignOrderConfirm) message.getPayload()).workerId);
+					ICommunicationAddress alternativeWorkerAddress = getAlternativeWorkerAddress(((AssignOrderConfirm) message.getPayload()).workerId);
+					reassignOrder(assignOrderConfirm, alternativeWorkerAddress);
 
 					continue;
 				}
@@ -284,7 +285,7 @@ public class BrokerBean extends AbstractAgentBean {
 					continue;
 				}
 
-				// TODO handle the reward
+				// TODO remove order from the worker specific order queues
 
 			}
 
@@ -345,26 +346,35 @@ public class BrokerBean extends AbstractAgentBean {
 
 	}
 
-	/** get a different workerAddress than the one passed as the argument
+	/** get a different workerAddress than the one passed as the argument */
 	private ICommunicationAddress getAlternativeWorkerAddress(String workerId) {
 
 		for(IAgentDescription agentDescription: this.agentDescriptions) {
 
-			// TODO
-			if () {
+			// TODO add datastructure to find most likely alternative for assigning an order to alternative worker
+	 		String workerAgentId = workerIdReverseAId.get(workerId);
+
+			if (agentDescription.getAid().equals(workerAgentId)) {
 				continue;
 			}
-			ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
 
-			break;
+			ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
+			return workerAddress;
+
 		}
 
-	} */
+	}
 
 	/** get a different workerAddress than the one passed as the argument */
-	private void reassignOrder(Order order, String workerId) {
+	private void reassignOrder(ICommunicationAddress workerAddress, AssignOrderConfirm assignOrderConfirm) {
 
 		// TODO
+		AssignOrderMessage assignOrderMessage = new AssignOrderMessage();
+		assignOrderMessage.order = this.orderMap.get(assignOrderConfirm.orderId);
+		assignOrderMessage.gameId = assignOrderConfirm.gameId;
+		assignOrderMessage.server = this.server;
+
+		sendMessage(workerAddress, assignOrderMessage);
 
 	}
 
