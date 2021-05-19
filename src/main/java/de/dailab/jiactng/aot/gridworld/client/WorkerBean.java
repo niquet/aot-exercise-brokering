@@ -43,8 +43,12 @@ public class WorkerBean extends AbstractAgentBean {
 	 * of course defeat the purpose of this exercise and may not be possible in "real life"
 	 */
 
+
+	/* FRAGE: Wieso doppelt verschachtelte Map für die Orders? */
 	private Map<String, Map<Order, ICommunicationAddress>> currentOrders = new HashMap<>();
 	private LinkedList<String> orderQueue = new LinkedList<>();
+	/* Hilfsvariable um den fokus erstmal auf anderes zu setzen */
+	private Order myOrder = null;
 	private Boolean isHandlingOrder = false;
 	private Boolean hasArrivedAtTarget = false;
 
@@ -125,7 +129,6 @@ public class WorkerBean extends AbstractAgentBean {
 					AssignOrderConfirm assignOrderConfirm = new AssignOrderConfirm();
 					assignOrderConfirm.orderId = order.id;
 					assignOrderConfirm.gameId = assignOrderMessage.gameId;
-					assignOrderConfirm.workerId = thisAgent.getAgentId();
 
 					if (true) {
 						assignOrderConfirm.state = Result.SUCCESS;
@@ -133,7 +136,17 @@ public class WorkerBean extends AbstractAgentBean {
 						assignOrderConfirm.state = Result.FAIL;
 					}
 
+					myOrder = order;
+					isHandlingOrder = true;
 					sendMessage(broker, assignOrderConfirm);
+
+					// Bisher nur zum testen (erste Bewegung)
+					WorkerMessage move = new WorkerMessage();
+					move.action = getNextMove(position, myOrder.position);
+					move.gameId = assignOrderConfirm.gameId;
+					move.workerId = thisAgent.getAgentId();
+
+					sendMessage(server, move);
 
 				}
 
@@ -163,12 +176,20 @@ public class WorkerBean extends AbstractAgentBean {
 
 					}
 
+					isHandlingOrder = true;
+
 					if (!hasArrivedAtTarget) {
-						// Agent hasn't arrived at target
+						// Agent hasn't arrived at target, so next move should be generated and send to the server
+						WorkerMessage move = new WorkerMessage();
+						move.action = getNextMove(position, myOrder.position);
+						move.workerId = thisAgent.getAgentId();
+						move.gameId = workerConfirm.gameId;
+						sendMessage(message.getReplyToAddress(), move);
 					}
 
 					// Agent has arrived at target
 					// TODO
+					else isHandlingOrder = false;
 
 				}
 

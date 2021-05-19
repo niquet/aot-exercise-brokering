@@ -1,91 +1,58 @@
-2021-05-18 17:09:22,590 ERROR [n-16129027a2d9.a-1612bb62092a.SimpleExecutionCycle] - --- action failed: de.dailab.jiactng.agentcore.comm.ICommunicationBean#send (s-1614ded08e13)
-java.lang.reflect.InvocationTargetException
-	at jdk.internal.reflect.GeneratedMethodAccessor38.invoke(Unknown Source)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:567)
-	at de.dailab.jiactng.agentcore.action.AbstractMethodExposingBean.doAction(AbstractMethodExposingBean.java:270)
-	at de.dailab.jiactng.agentcore.action.AbstractActionAuthorizationBean.authorize(AbstractActionAuthorizationBean.java:154)
-	at de.dailab.jiactng.agentcore.execution.AbstractExecutionCycle.performDoAction(AbstractExecutionCycle.java:157)
-	at de.dailab.jiactng.agentcore.execution.BasicExecutionCycle$2.run(BasicExecutionCycle.java:105)
-	at de.dailab.jiactng.agentcore.execution.SimpleExecutionCycle.performExecutionCycleProcess(SimpleExecutionCycle.java:31)
-	at de.dailab.jiactng.agentcore.execution.BasicExecutionCycle.processDoAction(BasicExecutionCycle.java:103)
-	at de.dailab.jiactng.agentcore.execution.SimpleExecutionCycle.run(SimpleExecutionCycle.java:55)
-	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
-	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
-	at java.base/java.lang.Thread.run(Thread.java:831)
-Caused by: java.lang.IllegalArgumentException: address must not be null
-	at de.dailab.jiactng.agentcore.comm.CommunicationBean.send(CommunicationBean.java:370)
-	at de.dailab.jiactng.agentcore.comm.CommunicationBean.send(CommunicationBean.java:350)
-	... 15 more
-2021-05-18 17:09:22,605 ERROR [n-16129027a2d9.a-1612bb62092a.SimpleExecutionCycle] - --- action failed: de.dailab.jiactng.agentcore.comm.ICommunicationBean#send (s-1615207ffcd6)
-java.lang.reflect.InvocationTargetException
-	at jdk.internal.reflect.GeneratedMethodAccessor38.invoke(Unknown Source)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:567)
-	at de.dailab.jiactng.agentcore.action.AbstractMethodExposingBean.doAction(AbstractMethodExposingBean.java:270)
-	at de.dailab.jiactng.agentcore.action.AbstractActionAuthorizationBean.authorize(AbstractActionAuthorizationBean.java:154)
-	at de.dailab.jiactng.agentcore.execution.AbstractExecutionCycle.performDoAction(AbstractExecutionCycle.java:157)
-	at de.dailab.jiactng.agentcore.execution.BasicExecutionCycle$2.run(BasicExecutionCycle.java:105)
-	at de.dailab.jiactng.agentcore.execution.SimpleExecutionCycle.performExecutionCycleProcess(SimpleExecutionCycle.java:31)
-	at de.dailab.jiactng.agentcore.execution.BasicExecutionCycle.processDoAction(BasicExecutionCycle.java:103)
-	at de.dailab.jiactng.agentcore.execution.SimpleExecutionCycle.run(SimpleExecutionCycle.java:55)
-	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
-	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
-	at java.base/java.lang.Thread.run(Thread.java:831)
-Caused by: java.lang.IllegalArgumentException: address must not be null
-	at de.dailab.jiactng.agentcore.comm.CommunicationBean.send(CommunicationBean.java:370)
-	at de.dailab.jiactng.agentcore.comm.CommunicationBean.send(CommunicationBean.java:350)
-	... 15 more
-2021-05-18 17:09:22,617 ERROR [n-16129027a2d9.a-1612bb62092a.SimpleExecutionCycle] - --- action failed: de.dailab.jiactng.agentcore.comm.ICommunicationBean#send (s-16151e19f736)
-java.lang.reflect.InvocationTargetException
-	at jdk.internal.reflect.GeneratedMethodAccessor38.invoke(Unknown Source)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:567)
-	at de.dailab.jiactng.agentcore.action.AbstractMethodExposingBean.doAction(AbstractMethodExposingBean.java:270)
-	at de.dailab.jiactng.agentcore.action.AbstractActionAuthorizationBean.authorize(AbstractActionAuthorizationBean.java:154)
-	at de.dailab.jiactng.agentcore.execution.AbstractExecutionCycle.performDoAction(AbstractExecutionCycle.java:157)
-	at de.dailab.jiactng.agentcore.execution.BasicExecutionCycle$2.run(BasicExecutionCycle.java:105)
-	at de.dailab.jiactng.agentcore.execution.SimpleExecutionCycle.performExecutionCycleProcess(SimpleExecutionCycle.java:31)
-	at de.dailab.jiactng.agentcore.execution.BasicExecutionCycle.processDoAction(BasicExecutionCycle.java:103)
-	at de.dailab.jiactng.agentcore.execution.SimpleExecutionCycle.run(SimpleExecutionCycle.java:55)
-	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
-	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
-	at java.base/java.lang.Thread.run(Thread.java:831)
-Caused by: java.lang.IllegalArgumentException: address must not be null
-	at de.dailab.jiactng.agentcore.comm.CommunicationBean.send(CommunicationBean.java:370)
-	at de.dailab.jiactng.agentcore.comm.CommunicationBean.send(CommunicationBean.java:350)
-	... 15 more
-2021-05-18 17:09:22,644 ERROR [n-16129027a2d9.a-1612bb62092a.SimpleExecutionCycle] - --- action failed: de.dailab.jiactng.agentcore.comm.ICommunicationBean#send (s-161529365bfc)
-java.lang.reflect.InvocationTargetException
-	at jdk.internal.reflect.GeneratedMethodAccessor38.invoke(Unknown Source)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:567)
-	at de.dailab.jiactng.agentcore.action.AbstractMethodExposingBean.doAction(AbstractMethodExposingBean.java:270)
-	at de.dailab.jiactng.agentcore.action.AbstractActionAuthorizationBean.authorize(AbstractActionAuthorizationBean.java:154)
-	at de.dailab.jiactng.agentcore.execution.AbstractExecutionCycle.performDoAction(AbstractExecutionCycle.java:157)
-	at de.dailab.jiactng.agentcore.execution.BasicExecutionCycle$2.run(BasicExecutionCycle.java:105)
-	at de.dailab.jiactng.agentcore.execution.SimpleExecutionCycle.performExecutionCycleProcess(SimpleExecutionCycle.java:31)
-	at de.dailab.jiactng.agentcore.execution.BasicExecutionCycle.processDoAction(BasicExecutionCycle.java:103)
-	at de.dailab.jiactng.agentcore.execution.SimpleExecutionCycle.run(SimpleExecutionCycle.java:55)
-	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
-	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
-	at java.base/java.lang.Thread.run(Thread.java:831)
-Caused by: java.lang.IllegalArgumentException: address must not be null
-	at de.dailab.jiactng.agentcore.comm.CommunicationBean.send(CommunicationBean.java:370)
-	at de.dailab.jiactng.agentcore.comm.CommunicationBean.send(CommunicationBean.java:350)
-	... 15 more
-2021-05-18 17:09:23,585 INFO [n-16129027a2d9.a-161272571335.BrokerBean] - running...
-2021-05-18 17:09:24,595 INFO [n-16129027a2d9.a-161272571335.BrokerBean] - running...
-2021-05-18 17:09:25,022 ERROR [org.apache.activemq.thread.TaskRunnerFactory] - Error in thread 'ActiveMQ VMTransport: vm://n-16129027a2d9StandardJMSBroker#1-1'
-org.apache.activemq.broker.BrokerStoppedException: Broker BrokerService[n-16129027a2d9StandardJMSBroker] is being stopped
+2021-05-17 16:39:26,520 INFO [n-d54a853a25d.a-d548f069ed7.WorkerBean] - starting...
+2021-05-17 16:39:26,530 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:26,532 WARN [n-d54a853a25d.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-17 16:39:26,534 INFO [n-d54a853a25d.a-d54d46c3ed0.WorkerBean] - starting...
+2021-05-17 16:39:26,536 INFO [n-d54a853a25d.a-d54a8192fa7.WorkerBean] - starting...
+2021-05-17 16:39:26,541 INFO [n-d54a853a25d.a-d54ca0c4e3a.WorkerBean] - starting...
+2021-05-17 16:39:26,543 INFO [n-d54a853a25d.a-d54c78dc256.WorkerBean] - starting...
+2021-05-17 16:39:27,531 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:27,532 WARN [n-d54a853a25d.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-17 16:39:28,537 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:28,538 WARN [n-d54a853a25d.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-17 16:39:29,546 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:30,552 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:31,552 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:32,552 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:33,558 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:34,558 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:35,558 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:36,558 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:37,565 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:38,570 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:39,575 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:40,583 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:41,583 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:42,583 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:43,584 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:44,594 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:45,598 INFO [n-d54a853a25d.a-d548ddcf683.BrokerBean] - running...
+2021-05-17 16:39:45,916 WARN [org.apache.activemq.broker.TransportConnection.Transport] - Transport Connection to: tcp://192.168.178.104:50924 failed: java.io.EOFException
+2021-05-17 16:39:46,014 ERROR [org.apache.activemq.thread.TaskRunnerFactory] - Error in thread 'ActiveMQ VMTransport: vm://n-d54a853a25dStandardJMSBroker#1-1'
+org.apache.activemq.broker.BrokerStoppedException: Broker BrokerService[n-d54a853a25dStandardJMSBroker] is being stopped
 	at org.apache.activemq.broker.TransportConnection$1.onCommand(TransportConnection.java:193)
 	at org.apache.activemq.transport.ResponseCorrelator.onCommand(ResponseCorrelator.java:116)
 	at org.apache.activemq.transport.MutexTransport.onCommand(MutexTransport.java:50)
@@ -95,9 +62,8 @@ org.apache.activemq.broker.BrokerStoppedException: Broker BrokerService[n-161290
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
 	at java.base/java.lang.Thread.run(Thread.java:831)
-2021-05-18 17:09:25,026 WARN [org.apache.activemq.broker.TransportConnection.Transport] - Transport Connection to: vm://n-16129027a2d9StandardJMSBroker#14 failed: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-16129027a2d9StandardJMSBroker#14) stopped.
-2021-05-18 17:09:25,036 ERROR [n-16129027a2d9.IDirectory.jms] - Sending of Message to address 'group:df@dfgroup' through JMS failed!
-javax.jms.JMSException: peer (vm://n-16129027a2d9StandardJMSBroker#1) stopped.
+2021-05-17 16:39:46,018 ERROR [n-d54a853a25d.IDirectory.jms] - Sending of Message to address 'group:df@dfgroup' through JMS failed!
+javax.jms.JMSException: peer (vm://n-d54a853a25dStandardJMSBroker#1) stopped.
 	at org.apache.activemq.util.JMSExceptionSupport.create(JMSExceptionSupport.java:54)
 	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1398)
 	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1324)
@@ -114,7 +80,7 @@ javax.jms.JMSException: peer (vm://n-16129027a2d9StandardJMSBroker#1) stopped.
 	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.stop(AbstractLifecycle.java:181)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:819)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
-Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-16129027a2d9StandardJMSBroker#1) stopped.
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-d54a853a25dStandardJMSBroker#1) stopped.
 	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
@@ -124,8 +90,8 @@ Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm:
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
 	at java.base/java.lang.Thread.run(Thread.java:831)
-2021-05-18 17:09:25,037 ERROR [n-16129027a2d9.IDirectory] - sendMessage failed. Message:
-[Headers: {JiacTNGSenderAddress=>msgbox:df@n-16129027a2d9;JiacTNGProtocolID=>df:bye;JiacTNGGroupAddress=>df@dfgroup;UUID=>n-16129027a2d9}, Payload: null, Sender: msgbox:df@n-16129027a2d9]
+2021-05-17 16:39:46,020 ERROR [n-d54a853a25d.IDirectory] - sendMessage failed. Message:
+[Headers: {JiacTNGSenderAddress=>msgbox:df@n-d54a853a25d;JiacTNGProtocolID=>df:bye;JiacTNGGroupAddress=>df@dfgroup;UUID=>n-d54a853a25d}, Payload: null, Sender: msgbox:df@n-d54a853a25d]
 de.dailab.jiactng.agentcore.comm.CommunicationException: error while sending message
 	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.send(JMSMessageTransport.java:221)
 	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.sendMessage(DirectoryAgentNodeBean.java:1472)
@@ -135,7 +101,7 @@ de.dailab.jiactng.agentcore.comm.CommunicationException: error while sending mes
 	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.stop(AbstractLifecycle.java:181)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:819)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
-Caused by: javax.jms.JMSException: peer (vm://n-16129027a2d9StandardJMSBroker#1) stopped.
+Caused by: javax.jms.JMSException: peer (vm://n-d54a853a25dStandardJMSBroker#1) stopped.
 	at org.apache.activemq.util.JMSExceptionSupport.create(JMSExceptionSupport.java:54)
 	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1398)
 	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1324)
@@ -146,7 +112,7 @@ Caused by: javax.jms.JMSException: peer (vm://n-16129027a2d9StandardJMSBroker#1)
 	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSSender.send(JMSSender.java:43)
 	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.send(JMSMessageTransport.java:215)
 	... 7 more
-Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-16129027a2d9StandardJMSBroker#1) stopped.
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-d54a853a25dStandardJMSBroker#1) stopped.
 	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
@@ -156,32 +122,8 @@ Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm:
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
 	at java.base/java.lang.Thread.run(Thread.java:831)
-2021-05-18 17:09:25,038 WARN [n-16129027a2d9.a-161272571335.CommunicationBean.jms] - could not close connection 
-javax.jms.JMSException: peer (vm://n-16129027a2d9StandardJMSBroker#3) stopped.
-	at org.apache.activemq.util.JMSExceptionSupport.create(JMSExceptionSupport.java:72)
-	at org.apache.activemq.ActiveMQConnection.doSyncSendPacket(ActiveMQConnection.java:1450)
-	at org.apache.activemq.ActiveMQConnection.close(ActiveMQConnection.java:687)
-	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:110)
-	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
-	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
-	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
-	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
-	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:996)
-	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
-	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
-	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
-Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-16129027a2d9StandardJMSBroker#3) stopped.
-	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
-	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
-	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
-	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
-	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
-	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
-	at java.base/java.lang.Thread.run(Thread.java:831)
-2021-05-18 17:09:25,040 WARN [n-16129027a2d9.a-16127608baa8.CommunicationBean.jms] - could not stop JMS connection 
-org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-16129027a2d9StandardJMSBroker#5) stopped.
+2021-05-17 16:39:46,022 WARN [n-d54a853a25d.a-d548ddcf683.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-d54a853a25dStandardJMSBroker#3) stopped.
 	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
 	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
 	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
@@ -194,7 +136,7 @@ org.apache.activemq.ConnectionFailedException: The JMS connection has failed: pe
 	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
-Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-16129027a2d9StandardJMSBroker#5) stopped.
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-d54a853a25dStandardJMSBroker#3) stopped.
 	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
@@ -204,8 +146,8 @@ Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm:
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
 	at java.base/java.lang.Thread.run(Thread.java:831)
-2021-05-18 17:09:25,042 WARN [n-16129027a2d9.a-1612bb62092a.CommunicationBean.jms] - could not stop JMS connection 
-org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-16129027a2d9StandardJMSBroker#7) stopped.
+2021-05-17 16:39:46,027 WARN [n-d54a853a25d.a-d548f069ed7.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-d54a853a25dStandardJMSBroker#5) stopped.
 	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
 	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
 	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
@@ -218,7 +160,7 @@ org.apache.activemq.ConnectionFailedException: The JMS connection has failed: pe
 	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
-Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-16129027a2d9StandardJMSBroker#7) stopped.
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-d54a853a25dStandardJMSBroker#5) stopped.
 	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
@@ -228,8 +170,8 @@ Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm:
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
 	at java.base/java.lang.Thread.run(Thread.java:831)
-2021-05-18 17:09:25,044 WARN [n-16129027a2d9.a-16128efdb1a3.CommunicationBean.jms] - could not stop JMS connection 
-org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-16129027a2d9StandardJMSBroker#9) stopped.
+2021-05-17 16:39:46,031 WARN [n-d54a853a25d.a-d54d46c3ed0.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-d54a853a25dStandardJMSBroker#7) stopped.
 	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
 	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
 	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
@@ -242,7 +184,7 @@ org.apache.activemq.ConnectionFailedException: The JMS connection has failed: pe
 	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
-Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-16129027a2d9StandardJMSBroker#9) stopped.
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-d54a853a25dStandardJMSBroker#7) stopped.
 	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
@@ -252,8 +194,8 @@ Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm:
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
 	at java.base/java.lang.Thread.run(Thread.java:831)
-2021-05-18 17:09:25,047 WARN [n-16129027a2d9.a-1612b0e5f126.CommunicationBean.jms] - could not stop JMS connection 
-org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-16129027a2d9StandardJMSBroker#11) stopped.
+2021-05-17 16:39:46,033 WARN [n-d54a853a25d.a-d54a8192fa7.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-d54a853a25dStandardJMSBroker#9) stopped.
 	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
 	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
 	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
@@ -266,7 +208,7 @@ org.apache.activemq.ConnectionFailedException: The JMS connection has failed: pe
 	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
-Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-16129027a2d9StandardJMSBroker#11) stopped.
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-d54a853a25dStandardJMSBroker#9) stopped.
 	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
@@ -276,12 +218,12 @@ Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm:
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
 	at java.base/java.lang.Thread.run(Thread.java:831)
-2021-05-18 17:09:25,049 WARN [n-16129027a2d9.a-1612ae5605c5.CommunicationBean.jms] - could not close connection 
-javax.jms.JMSException: peer (vm://n-16129027a2d9StandardJMSBroker#13) stopped.
-	at org.apache.activemq.util.JMSExceptionSupport.create(JMSExceptionSupport.java:72)
-	at org.apache.activemq.ActiveMQConnection.doSyncSendPacket(ActiveMQConnection.java:1450)
-	at org.apache.activemq.ActiveMQConnection.close(ActiveMQConnection.java:687)
-	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:110)
+2021-05-17 16:39:46,036 WARN [n-d54a853a25d.a-d54ca0c4e3a.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-d54a853a25dStandardJMSBroker#11) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
 	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
 	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
 	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
@@ -290,7 +232,7 @@ javax.jms.JMSException: peer (vm://n-16129027a2d9StandardJMSBroker#13) stopped.
 	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
-Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-16129027a2d9StandardJMSBroker#13) stopped.
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-d54a853a25dStandardJMSBroker#11) stopped.
 	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
@@ -300,8 +242,32 @@ Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm:
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
 	at java.base/java.lang.Thread.run(Thread.java:831)
-2021-05-18 17:09:25,051 WARN [n-16129027a2d9.IDirectory.jms] - could not stop JMS connection 
-org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-16129027a2d9StandardJMSBroker#1) stopped.
+2021-05-17 16:39:46,040 WARN [n-d54a853a25d.a-d54c78dc256.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-d54a853a25dStandardJMSBroker#13) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:996)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-d54a853a25dStandardJMSBroker#13) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:831)
+2021-05-17 16:39:46,042 WARN [n-d54a853a25d.IDirectory.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-d54a853a25dStandardJMSBroker#1) stopped.
 	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
 	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
 	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
@@ -312,7 +278,7 @@ org.apache.activemq.ConnectionFailedException: The JMS connection has failed: pe
 	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
 	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
-Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-16129027a2d9StandardJMSBroker#1) stopped.
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-d54a853a25dStandardJMSBroker#1) stopped.
 	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
 	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)

@@ -102,7 +102,7 @@ public class BrokerBean extends AbstractAgentBean {
 				/* do something */
 
 				// TODO
-				// this.hasGameStarted = true;
+				this.hasGameStarted = true;
 				StartGameResponse startGameResponse = (StartGameResponse) message.getPayload();
 
 				int maxNumberOfAgents = startGameResponse.initialWorkers.size();
@@ -114,41 +114,42 @@ public class BrokerBean extends AbstractAgentBean {
 				 *
 				 */
 				System.out.println("SERVER SENDING " + startGameResponse.toString());
+				System.out.println("Workers " + agentDescriptions);
 
 				// TODO handle movements and obstacles
 				this.gridworldGame = new GridworldGame();
-				for (Position position : startGameResponse.obstacles) {
-					this.gridworldGame.obstacles.add(position);
-				}
+				this.gridworldGame.obstacles.addAll(startGameResponse.obstacles);
 
 				// Send each Agent their current position
 				PositionMessage positionMessage = new PositionMessage();
 
 				// TODO nicht mehr worker verwenden als zur Verfügung stehen
-				for (Worker worker: startGameResponse.initialWorkers) {
 
+				/* CHANGED -> initialWorker ids aren't what we have to check, they just give us worker positions, we have to assign them!
+				 Das Problem hier ist die worker.id unserer worker stimmt nicht unbedingt mit den initialisierten über.
+				*/
+
+				int i = 0; // geht sicher schöner...
 					ICommunicationAddress workerAddress = null;
-
 					for (IAgentDescription agentDescription: this.agentDescriptions) {
+					workerAddress = agentDescription.getMessageBoxAddress();
+						Worker worker = startGameResponse.initialWorkers.get(i);
+						// ID anpassen!!!
+						agentDescription.setAgentNodeUUID(worker.id);
+						positionMessage.workerId =worker.id;
+						positionMessage.gameId = startGameResponse.gameId;
+						positionMessage.position = worker.position;
 
-						if (agentDescription.getAid().equals(worker.id)) {
-							workerAddress = agentDescription.getMessageBoxAddress();
-							break;
+						sendMessage(workerAddress, positionMessage);
+						i++;
 						}
 
-					}
-
-					positionMessage.workerId =worker.id;
-					positionMessage.gameId = startGameResponse.gameId;
-					positionMessage.position = worker.position;
-
-					sendMessage(workerAddress, positionMessage);
 					break;
 				}
 
 				// TODO maxturns fehlt
 
-			}
+
 
 			if (payload instanceof OrderMessage) {
 
@@ -169,7 +170,7 @@ public class BrokerBean extends AbstractAgentBean {
 				System.out.println("SERVER SENDING " + orderMessage.toString());
 
 				// Save order into orderMap
-				Order order = ((OrderMessage) message.getPayload()).order;
+				Order order = (Order) ((OrderMessage) message.getPayload()).order;
 				this.orderMap.put(order.id, order);
 
 			}
