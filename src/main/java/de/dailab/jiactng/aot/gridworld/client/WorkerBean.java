@@ -17,9 +17,7 @@ import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
 import de.dailab.jiactng.agentcore.knowledge.IFact;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -46,6 +44,19 @@ public class WorkerBean extends AbstractAgentBean {
 	private Map<String, Order> currentOrders = new HashMap<>();
 	private Map<Order, ICommunicationAddress> orderToAddress = new HashMap<>();
 	private LinkedList<String> orderQueue = new LinkedList<>();
+	private Comparator<Order> compareOrder = new Comparator<Order>() {
+		@Override
+		public int compare(Order o1, Order o2) {
+			int p1 = position.distance(o1.position);
+			int p2 = position.distance(o2.position);
+			if(p1 < p2) return -1;
+			if(p1 > p2) return 1;
+			/*if(o1.deadline < o2.deadline) return -1;
+			if(o1.deadline > o2.deadline) return 1;*/
+			return 0;
+		}
+	};
+	private PriorityQueue<Order> priorityQueue = new PriorityQueue<>(compareOrder);
 	private Boolean isHandlingOrder = false;
 	private Order handleOrder = null;
 	private Boolean hasArrivedAtTarget = false;
@@ -86,13 +97,17 @@ public class WorkerBean extends AbstractAgentBean {
 			// evaluateOrder();
 			// sortOrders();
 
-		if(!isHandlingOrder) {
+		/*if(!isHandlingOrder) {
 
-		}
-		if(!currentOrders.isEmpty()) {
-			String orderId = orderQueue.peekFirst();
+		}*/
+
+		if(!priorityQueue.isEmpty()) {
+			/*String orderId = orderQueue.peekFirst();
 			Order firstOrder = currentOrders.get(orderId);
-			System.out.println("ORDER IS " + firstOrder);
+			System.out.println("ORDER IS " + firstOrder);*/
+
+			Order firstOrder = priorityQueue.element();
+
 			/**
 			 * We handle the order
 			 * send message to server
@@ -148,15 +163,14 @@ public class WorkerBean extends AbstractAgentBean {
 
 					AssignOrderMessage assignOrderMessage = (AssignOrderMessage) message.getPayload();
 
-
-
 					Order order = assignOrderMessage.order;
 					ICommunicationAddress server = assignOrderMessage.server;
-
+				if(position != null) {
 					//Map<Order, ICommunicationAddress> orderWithServer = new HashMap<>();
 					orderToAddress.put(order, server);
-					currentOrders.put(order.id, order);
-					orderQueue.push(order.id);
+					//currentOrders.put(order.id, order);
+					priorityQueue.add(order);
+					//orderQueue.push(order.id);
 
 					// TODO do something / evaluate
 
@@ -165,14 +179,14 @@ public class WorkerBean extends AbstractAgentBean {
 					assignOrderConfirm.gameId = assignOrderMessage.gameId;
 					assignOrderConfirm.workerId = thisAgent.getAgentId();
 
-					if (true) {
+					if (priorityQueue.element() == order) {
 						assignOrderConfirm.state = Result.SUCCESS;
 					} else {
 						assignOrderConfirm.state = Result.FAIL;
 					}
 
 					sendMessage(broker, assignOrderConfirm);
-
+				}
 				}
 
 				if (payload instanceof PositionMessage) {

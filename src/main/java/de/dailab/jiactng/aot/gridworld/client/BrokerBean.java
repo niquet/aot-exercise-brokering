@@ -44,7 +44,7 @@ public class BrokerBean extends AbstractAgentBean {
 	 this Map is not registered by the server and but only a mapping for us
 	 */
 	private Map<String, IAgentDescription> workerIdMap = new HashMap<>();
-	// Map AgentID to wroker ID
+	// Map AgentID to worker ID
 	private Map<String, String> workerIdReverseAID = new HashMap<>();
 
 
