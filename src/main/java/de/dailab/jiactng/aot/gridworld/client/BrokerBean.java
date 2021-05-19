@@ -38,6 +38,16 @@ public class BrokerBean extends AbstractAgentBean {
 	private GridworldGame gridworldGame = null;
 
 	private Map<String, Order> orderMap = new HashMap<>();
+	private Map<String, Position> positionMap = new HashMap<>();
+
+	/* A Map to map worker Ids to IAgentDescription to get an adress with a worker Id
+	 this Map is not registered by the server and but only a mapping for us
+	 */
+	private Map<String, IAgentDescription> workerIdMap = new HashMap<>();
+	// Map AgentID to wroker ID
+	private Map<String, String> workerIdReverseAID = new HashMap<>();
+
+
 
 	@Override
 	public void doStart() throws Exception {
@@ -102,7 +112,7 @@ public class BrokerBean extends AbstractAgentBean {
 				/* do something */
 
 				// TODO
-				this.hasGameStarted = true;
+				// this.hasGameStarted = true;
 				StartGameResponse startGameResponse = (StartGameResponse) message.getPayload();
 
 				int maxNumberOfAgents = startGameResponse.initialWorkers.size();
@@ -114,7 +124,6 @@ public class BrokerBean extends AbstractAgentBean {
 				 *
 				 */
 				System.out.println("SERVER SENDING " + startGameResponse.toString());
-				System.out.println("Workers " + agentDescriptions);
 
 				// TODO handle movements and obstacles
 				this.gridworldGame = new GridworldGame();
@@ -125,30 +134,59 @@ public class BrokerBean extends AbstractAgentBean {
 
 				// TODO nicht mehr worker verwenden als zur Verfügung stehen
 
-				/* CHANGED -> initialWorker ids aren't what we have to check, they just give us worker positions, we have to assign them!
-				 Das Problem hier ist die worker.id unserer worker stimmt nicht unbedingt mit den initialisierten über.
-				*/
+				/**
+				 * Initialize the workerIdMap to get the agentDescription and especially the
+				 * MailBoxAdress of the workerAgent which we associated with a specific worker
+				 *
+				 */
+				for (Worker worker : startGameResponse.initialWorkers) {
+					workerIdMap.put(worker.id, this.agentDescriptions.get(startGameResponse.initialWorkers.indexOf(worker)));
+					workerIdReverseAID.put(this.agentDescriptions.get(startGameResponse.initialWorkers.indexOf(worker)).getAid(), worker.id);
+				}
 
-				int i = 0; // geht sicher schöner...
-					ICommunicationAddress workerAddress = null;
-					for (IAgentDescription agentDescription: this.agentDescriptions) {
-					workerAddress = agentDescription.getMessageBoxAddress();
-						Worker worker = startGameResponse.initialWorkers.get(i);
-						// ID anpassen!!!
-						agentDescription.setAgentNodeUUID(worker.id);
-						positionMessage.workerId =worker.id;
-						positionMessage.gameId = startGameResponse.gameId;
-						positionMessage.position = worker.position;
+				/**
+				 * Send the Position messages to each Agent for a specific worker
+				 * PositionMessages are sent to inform the worker where it is located
+				 * additionally put the position of the worker in the positionMap
+				 */
+				for (Worker worker : startGameResponse.initialWorkers) {
+					positionMap.put(worker.id, worker.position);
 
-						sendMessage(workerAddress, positionMessage);
-						i++;
-						}
+					IAgentDescription agentDescription = workerIdMap.get(worker.id);
+					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
 
-					break;
+
+					positionMessage.workerId = agentDescription.getAid();
+					positionMessage.gameId = startGameResponse.gameId;
+					positionMessage.position = worker.position;
+					//System.out.println("ADRESS IS " + workerAddress);
+
+					sendMessage(workerAddress, positionMessage);
+					//break;
 				}
 
 				// TODO maxturns fehlt
 
+			}
+
+			if (payload instanceof PositionConfirm) {
+				PositionConfirm positionConfirm = (PositionConfirm) message.getPayload();
+				if(positionConfirm.state == Result.FAIL) {
+					String workerId = workerIdReverseAID.get(positionConfirm.workerId);
+					IAgentDescription agentDescription = workerIdMap.get(workerId);
+					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
+
+					PositionMessage positionMessage = new PositionMessage();
+
+					positionMessage.workerId = agentDescription.getAid();
+					positionMessage.gameId = positionConfirm.gameId;
+					positionMessage.position = positionMap.get(workerId);
+
+					sendMessage(workerAddress, positionMessage);
+				}
+
+
+			}
 
 
 			if (payload instanceof OrderMessage) {
@@ -170,7 +208,7 @@ public class BrokerBean extends AbstractAgentBean {
 				System.out.println("SERVER SENDING " + orderMessage.toString());
 
 				// Save order into orderMap
-				Order order = (Order) ((OrderMessage) message.getPayload()).order;
+				Order order = ((OrderMessage) message.getPayload()).order;
 				this.orderMap.put(order.id, order);
 
 			}

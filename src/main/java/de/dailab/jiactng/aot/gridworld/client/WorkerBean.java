@@ -154,14 +154,40 @@ public class WorkerBean extends AbstractAgentBean {
 					/** Order to assign to the agent */
 
 					PositionMessage positionMessage = (PositionMessage) message.getPayload();
-					position = positionMessage.position;
+
+
+					ICommunicationAddress broker = message.getSender();
+					PositionConfirm positionConfirm = new PositionConfirm();
+					positionConfirm.workerId = thisAgent.getAgentId();
+					positionConfirm.gameId = positionMessage.gameId;
+					//System.out.println("WORKER NAME IST: " + thisAgent.getAgentName());
+					//System.out.println("WORKER NODE IST: " + thisAgent.getAgentNode());
+					System.out.println("WORKER.toString() IST: " + thisAgent.toString());
+
+					/**
+					 * Send Position confirm with FAIL if the message is not for us
+					 */
+					if(!positionMessage.workerId.equals(thisAgent.getAgentId()) && position == null) {
+						positionConfirm.state = Result.FAIL;
+						sendMessage(broker, positionConfirm);
+						return;
+					}
+
+					/**
+					 * Only set position if it is not for us
+					 */
+					if(position == null) {
+						position = positionMessage.position;
+					}
+
 
 					/**
 					 *
 					 * DEBUGGING
 					 *
 					 */
-					System.out.println("WORKER RECEIVED " + positionMessage.toString());
+					//System.out.println("WORKER RECEIVED " + positionMessage.toString());
+					log.info("WORKER RECEIVED " + positionMessage.toString());
 
 				}
 
