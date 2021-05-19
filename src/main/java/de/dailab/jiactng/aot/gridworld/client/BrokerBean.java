@@ -38,9 +38,11 @@ public class BrokerBean extends AbstractAgentBean {
 	private GridworldGame gridworldGame = null;
 
 	private Map<String, Order> orderMap = new HashMap<>();
+	// Worker mapped to position
+	// ! -- Get workerId String from workerIdReverseAId to use this map
 	private Map<String, Position> positionMap = new HashMap<>();
 
-	/* A Map to map worker Ids to IAgentDescription to get an adress with a worker Id
+	/* A Map to map worker Ids to IAgentDescription to get an address with a worker Id
 	 this Map is not registered by the server and but only a mapping for us
 	 */
 	private Map<String, IAgentDescription> workerIdMap = new HashMap<>();
@@ -173,7 +175,7 @@ public class BrokerBean extends AbstractAgentBean {
 			if (payload instanceof PositionConfirm) {
 				PositionConfirm positionConfirm = (PositionConfirm) message.getPayload();
 				if(positionConfirm.state == Result.FAIL) {
-					String workerId = workerIdReverseAID.get(positionConfirm.workerId);
+					String workerId = workerIdReverseAId.get(positionConfirm.workerId);
 					IAgentDescription agentDescription = workerIdMap.get(workerId);
 					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
 
@@ -245,11 +247,8 @@ public class BrokerBean extends AbstractAgentBean {
 				assignOrderMessage.gameId = takeOrderMessage.gameId;
 				assignOrderMessage.server = this.server;
 
-				for(IAgentDescription agentDescription: this.agentDescriptions) {
-					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
-					sendMessage(workerAddress, assignOrderMessage);
-					break;
-				}
+				ICommunicationAddress workerAddress = decideOrderAssigment(assignOrderMessage.order);
+				sendMessage(workerAddress, assignOrderMessage);
 
 			}
 
@@ -261,6 +260,9 @@ public class BrokerBean extends AbstractAgentBean {
 
 				if (result == Result.FAIL) {
 					// Handle failed confirmation
+					// TODO
+					// ICommunicationAddress alternativeWorkerAddress = getAlternativeWorkerAddress(((AssignOrderConfirm) message.getPayload()).workerId);
+
 					continue;
 				}
 
@@ -282,6 +284,13 @@ public class BrokerBean extends AbstractAgentBean {
 
 			}
 
+			if (payload instanceof PositionUpdate) {
+
+				PositionUpdate positionUpdate = (PositionUpdate) message.getPayload();
+				updateWorkerPosition(positionUpdate.position, positionUpdate.workerId);
+
+			}
+
 			if (payload instanceof EndGameMessage) {
 
 				EndGameMessage endGameMessage = (EndGameMessage) message.getPayload();
@@ -298,7 +307,62 @@ public class BrokerBean extends AbstractAgentBean {
 	/*
 	 * You can implement some functions and helper methods here.
 	 */
+	/** get a different workerAddress than the one passed as the argument */
+	private void updateWorkerPosition(Position position, String workerAgentId) {
 
+		String workerId = workerIdReverseAId.get(workerAgentId);
+		positionMap.replace(workerId, position);
+
+	}
+
+	/** get a different workerAddress than the one passed as the argument */
+	private ICommunicationAddress decideOrderAssigment(Order order) {
+
+		ICommunicationAddress workerAddress = null;
+		Position orderPosition = order.position;
+		Position currentWorkerPosition = null;
+
+		int minimum = Integer.MAX_VALUE;
+		int currentDistance = 0;
+
+		String[] workerAgentId = workerIdReverseAId.values().toArray(new String[0]);
+		for (String currentWorkerId: workerAgentId) {
+
+			currentWorkerPosition = positionMap.get(currentWorkerId);
+			currentDistance = orderPosition.distance(currentWorkerPosition);
+			if (orderPosition.distance(currentWorkerPosition) < minimum) {
+				minimum = currentDistance;
+				workerAddress = workerIdMap.get(currentWorkerId).getMessageBoxAddress();
+			}
+
+		}
+
+		return workerAddress;
+
+	}
+
+	/** get a different workerAddress than the one passed as the argument
+	private ICommunicationAddress getAlternativeWorkerAddress(String workerId) {
+
+		for(IAgentDescription agentDescription: this.agentDescriptions) {
+
+			// TODO
+			if () {
+				continue;
+			}
+			ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
+
+			break;
+		}
+
+	} */
+
+	/** get a different workerAddress than the one passed as the argument */
+	private void reassignOrder(Order order, String workerId) {
+
+		// TODO
+
+	}
 
 	/** example function for using getAgentNode() and retrieving a list of all worker agents */
 	private List<IAgentDescription> getMyWorkerAgents(int maxNum) {

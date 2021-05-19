@@ -64,6 +64,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private Position position = null;
 	private String workerIdForServer = null;
+	private ICommunicationAddress broker = null;
 
 
 	@Override
@@ -195,7 +196,9 @@ public class WorkerBean extends AbstractAgentBean {
 					PositionMessage positionMessage = (PositionMessage) message.getPayload();
 
 
-					ICommunicationAddress broker = message.getSender();
+					ICommunicationAddress brokerAddress = message.getSender();
+					broker = brokerAddress;
+
 					PositionConfirm positionConfirm = new PositionConfirm();
 					positionConfirm.workerId = thisAgent.getAgentId();
 					positionConfirm.gameId = positionMessage.gameId;
@@ -208,7 +211,7 @@ public class WorkerBean extends AbstractAgentBean {
 					 */
 					if(!positionMessage.workerId.equals(thisAgent.getAgentId()) && position == null) {
 						positionConfirm.state = Result.FAIL;
-						sendMessage(broker, positionConfirm);
+						sendMessage(brokerAddress, positionConfirm);
 						return;
 					}
 
@@ -244,8 +247,15 @@ public class WorkerBean extends AbstractAgentBean {
 					}
 
 					if (!hasArrivedAtTarget) {
-						// Agent hasn't arrived at target
+						// Agent hasn't arrived at target, so conduct the planned move
 						doMove(workerConfirm.action);
+						// Update position at broker
+						PositionUpdate positionUpdate = new PositionUpdate();
+						positionUpdate.workerId = thisAgent.getAgentId();
+						positionUpdate.position = position;
+						positionUpdate.gameId = gameId;
+						sendMessage(broker, positionUpdate);
+
 						System.out.println("POSITION " + position);
 
 					}
