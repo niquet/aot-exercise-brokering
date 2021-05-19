@@ -43,12 +43,16 @@ public class WorkerBean extends AbstractAgentBean {
 	 * of course defeat the purpose of this exercise and may not be possible in "real life"
 	 */
 
-	private Map<String, Map<Order, ICommunicationAddress>> currentOrders = new HashMap<>();
+	private Map<String, Order> currentOrders = new HashMap<>();
+	private Map<Order, ICommunicationAddress> orderToAddress = new HashMap<>();
 	private LinkedList<String> orderQueue = new LinkedList<>();
 	private Boolean isHandlingOrder = false;
+	private Order handleOrder = null;
 	private Boolean hasArrivedAtTarget = false;
+	private Integer gameId = null;
 
 	private Position position = null;
+	private String workerIdForServer = null;
 
 
 	@Override
@@ -85,6 +89,34 @@ public class WorkerBean extends AbstractAgentBean {
 		if(!isHandlingOrder) {
 
 		}
+		if(!currentOrders.isEmpty()) {
+			String orderId = orderQueue.peekFirst();
+			Order firstOrder = currentOrders.get(orderId);
+			System.out.println("ORDER IS " + firstOrder);
+			/**
+			 * We handle the order
+			 * send message to server
+			 */
+			if(firstOrder.position == position) {
+				isHandlingOrder = true;
+				// TODO Send message to server
+
+			} else {
+				if(position == null)
+					return;
+				WorkerMessage move = new WorkerMessage();
+				move.action = getNextMove(position, firstOrder.position);
+				move.gameId = gameId;
+				move.workerId = workerIdForServer;
+				System.out.println("WORKERIDFORSERVER " + workerIdForServer);
+
+				sendMessage(orderToAddress.get(firstOrder), move);
+
+			}
+
+
+
+		}
 
 	}
 
@@ -109,16 +141,22 @@ public class WorkerBean extends AbstractAgentBean {
 
 				if (payload instanceof AssignOrderMessage) {
 					/** Order to assign to the agent */
+					if(gameId == null)
+						gameId = ((AssignOrderMessage) message.getPayload()).gameId;
 
 					ICommunicationAddress broker = message.getSender();
 
 					AssignOrderMessage assignOrderMessage = (AssignOrderMessage) message.getPayload();
+
+
+
 					Order order = assignOrderMessage.order;
 					ICommunicationAddress server = assignOrderMessage.server;
 
-					Map<Order, ICommunicationAddress> orderWithServer = new HashMap<>();
-					orderWithServer.put(order, server);
-					currentOrders.put(order.id, orderWithServer);
+					//Map<Order, ICommunicationAddress> orderWithServer = new HashMap<>();
+					orderToAddress.put(order, server);
+					currentOrders.put(order.id, order);
+					orderQueue.push(order.id);
 
 					// TODO do something / evaluate
 
@@ -163,8 +201,10 @@ public class WorkerBean extends AbstractAgentBean {
 					/**
 					 * Only set position if it is not for us
 					 */
-					if(position == null) {
+					if(position == null || workerIdForServer == null) {
 						position = positionMessage.position;
+						workerIdForServer = positionMessage.workerIdForServer;
+
 					}
 
 
@@ -186,15 +226,19 @@ public class WorkerBean extends AbstractAgentBean {
 					if (result == Result.FAIL) {
 
 						// TODO
-
+						return;
 					}
 
 					if (!hasArrivedAtTarget) {
 						// Agent hasn't arrived at target
+						doMove(workerConfirm.action);
+						System.out.println("POSITION " + position);
+
 					}
 
 					// Agent has arrived at target
 					// TODO
+
 
 				}
 
@@ -226,12 +270,12 @@ public class WorkerBean extends AbstractAgentBean {
 	private WorkerAction getNextMove(Position current, Position target) {
 		// TODO
 		// [N, S, E, W]
-		Position N = new Position(current.x, current.y + 1);
-		Position S = new Position(current.x, current.y - 1);
+		Position N = new Position(current.x, current.y - 1);
+		Position S = new Position(current.x, current.y + 1);
 		Position E = new Position(current.x + 1, current.y);
 		Position W = new Position(current.x - 1, current.y);
 
-		int[] distances = { current.distance(N), current.distance(S), current.distance(E), current.distance(W) };
+		int[] distances = { target.distance(N), target.distance(S), target.distance(E), target.distance(W) };
 
 		WorkerAction workerAction;
 		int index = -1;
@@ -264,6 +308,13 @@ public class WorkerBean extends AbstractAgentBean {
 
 		return workerAction;
 
+	}
+
+	private void doMove(WorkerAction action) {
+		if (action == WorkerAction.NORTH) position = new Position(position.x, position.y - 1);
+		if (action == WorkerAction.SOUTH) position = new Position(position.x, position.y + 1);
+		if (action == WorkerAction.WEST)  position = new Position(position.x - 1, position.y);
+		if (action == WorkerAction.EAST)  position = new Position(position.x + 1, position.y);
 	}
 
 }

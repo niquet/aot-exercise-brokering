@@ -23,6 +23,7 @@ public class PositionConfirm extends GameMessage {
     /** the Position of the worker */
     public Result state;
 
+
     @Override
     public String toString() {
         return String.format("PositionMessage(game=%d, workerId=%s, state=%s)", gameId, workerId, state);
