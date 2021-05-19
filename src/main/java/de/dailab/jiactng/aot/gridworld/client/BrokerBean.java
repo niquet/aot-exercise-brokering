@@ -159,6 +159,7 @@ public class BrokerBean extends AbstractAgentBean {
 					positionMessage.workerId = agentDescription.getAid();
 					positionMessage.gameId = startGameResponse.gameId;
 					positionMessage.position = worker.position;
+					positionMessage.workerIdForServer = worker.id;
 					//System.out.println("ADRESS IS " + workerAddress);
 
 					sendMessage(workerAddress, positionMessage);
@@ -181,6 +182,7 @@ public class BrokerBean extends AbstractAgentBean {
 					positionMessage.workerId = agentDescription.getAid();
 					positionMessage.gameId = positionConfirm.gameId;
 					positionMessage.position = positionMap.get(workerId);
+					positionMessage.workerIdForServer = workerId;
 
 					sendMessage(workerAddress, positionMessage);
 				}

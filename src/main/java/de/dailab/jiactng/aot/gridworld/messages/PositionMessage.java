@@ -23,9 +23,12 @@ public class PositionMessage extends GameMessage {
     /** the Position of the worker */
     public Position position;
 
+    /** the Id of the worker */
+    public String workerIdForServer;
+
     @Override
     public String toString() {
-        return String.format("PositionMessage(game=%d, workerId=%s, position=%s)", gameId, workerId, position);
+        return String.format("PositionMessage(game=%d, workerId=%s, position=%s)", gameId, workerId, position, workerIdForServer);
     }
 
 }
