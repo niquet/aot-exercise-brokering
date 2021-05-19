@@ -263,7 +263,7 @@ public class BrokerBean extends AbstractAgentBean {
 					// Handle failed confirmation
 					// TODO
 					ICommunicationAddress alternativeWorkerAddress = getAlternativeWorkerAddress(((AssignOrderConfirm) message.getPayload()).workerId);
-					reassignOrder(assignOrderConfirm, alternativeWorkerAddress);
+					reassignOrder(alternativeWorkerAddress, assignOrderConfirm);
 
 					continue;
 				}
@@ -345,7 +345,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 	/** get a different workerAddress than the one passed as the argument */
 	private ICommunicationAddress getAlternativeWorkerAddress(String workerId) {
-
+		ICommunicationAddress workerAddress = null;
 		for(IAgentDescription agentDescription: this.agentDescriptions) {
 
 			// TODO add datastructure to find most likely alternative for assigning an order to alternative worker
@@ -355,11 +355,11 @@ public class BrokerBean extends AbstractAgentBean {
 				continue;
 			}
 
-			ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
-			return workerAddress;
-
+			 workerAddress = agentDescription.getMessageBoxAddress();
+			break;
 		}
 
+		return workerAddress;
 	}
 
 	/** get a different workerAddress than the one passed as the argument */
