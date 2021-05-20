@@ -41,22 +41,21 @@ public class WorkerBean extends AbstractAgentBean {
 	 * of course defeat the purpose of this exercise and may not be possible in "real life"
 	 */
 
-	private Map<String, Order> currentOrders = new HashMap<>();
-	private Map<Order, ICommunicationAddress> orderToAddress = new HashMap<>();
-	private LinkedList<String> orderQueue = new LinkedList<>();
-	private Comparator<Order> compareOrder = new Comparator<Order>() {
+	private final Map<String, Order> currentOrders = new HashMap<>();
+	private final Map<Order, ICommunicationAddress> orderToAddress = new HashMap<>();
+	private final Comparator<Order> compareOrder = new Comparator<Order>() {
 		@Override
 		public int compare(Order o1, Order o2) {
-			/*int p1 = position.distance(o1.position);
+			int p1 = position.distance(o1.position);
 			int p2 = position.distance(o2.position);
 			if(p1 < p2) return -1;
-			if(p1 > p2) return 1;*/
-			if(o1.deadline < o2.deadline) return -1;
-			if(o1.deadline > o2.deadline) return 1;
+			if(p1 > p2) return 1;
+			//if(o1.deadline < o2.deadline) return -1;
+			//if(o1.deadline > o2.deadline) return 1;
 			return 0;
 		}
 	};
-	private PriorityQueue<Order> priorityQueue = new PriorityQueue<>(compareOrder);
+	private final PriorityQueue<Order> priorityQueue = new PriorityQueue<>(compareOrder);
 	private Order handleOrder = null;
 	private Boolean hasArrivedAtTarget = false;
 	private Integer gameId = null;
@@ -91,17 +90,10 @@ public class WorkerBean extends AbstractAgentBean {
 		/*
 		 * this is executed periodically by the agent; check the BrokerBean.java for an example.
 		 */
-		// TODO
+	// TODO what to do for each execute
 
-		// notify -> if new Order arrived
-			// evaluateOrder();
-			// sortOrders();
-
-
+		// if we already have assignments
 		if(!priorityQueue.isEmpty()) {
-			/*String orderId = orderQueue.peekFirst();
-			Order firstOrder = currentOrders.get(orderId);
-			System.out.println("ORDER IS " + firstOrder);*/
 
 			Order firstOrder = handleOrder; //priorityQueue.peek();
 
@@ -109,24 +101,14 @@ public class WorkerBean extends AbstractAgentBean {
 			 * We handle the order
 			 * send message to server
 			 */
-			/*if(firstOrder.position.equals(position)) {
-				hasArrivedAtTarget = true;
-				// TODO Send message to server
-				WorkerMessage orderFinished = new WorkerMessage();
-				orderFinished.gameId = gameId;
-				orderFinished.workerId = workerIdForServer;
-				orderFinished.action = WorkerAction.ORDER;
 
-				sendMessage(orderToAddress.get(handleOrder), orderFinished);
-
-			} else {*/
 				if(position == null)
 					return;
 				WorkerMessage move = new WorkerMessage();
 				move.action = getNextMove(position, firstOrder.position);
 				move.gameId = gameId;
 				move.workerId = workerIdForServer;
-				System.out.println("WORKERIDFORSERVER " + workerIdForServer);
+				//System.out.println("WORKERIDFORSERVER " + workerIdForServer);
 
 				sendMessage(orderToAddress.get(firstOrder), move);
 
@@ -163,6 +145,8 @@ public class WorkerBean extends AbstractAgentBean {
 
 					Order order = assignOrderMessage.order;
 					ICommunicationAddress server = assignOrderMessage.server;
+
+					//TODO position nicht notwendig?? Ändern!
 					if (position != null) {
 						//Map<Order, ICommunicationAddress> orderWithServer = new HashMap<>();
 
@@ -175,7 +159,7 @@ public class WorkerBean extends AbstractAgentBean {
 						assignOrderConfirm.state = Result.FAIL;
 
 						//TODO is it possible for us to complete this order - Funktion erstellen mit der man Priority Queue neu evaluiert
-						if(position.distance(order.position) < order.deadline) {
+						if(possibleEnd(order.position) < order.deadline) {
 							orderToAddress.put(order, server);
 							//currentOrders.put(order.id, order);
 							priorityQueue.add(order);
@@ -234,10 +218,19 @@ public class WorkerBean extends AbstractAgentBean {
 					WorkerConfirm workerConfirm = (WorkerConfirm) message.getPayload();
 					Result result = workerConfirm.state;
 
+					if(workerConfirm.action == WorkerAction.ORDER){
+						priorityQueue.poll();
+						System.out.println("SUCCESS " + handleOrder);
+						handleOrder = priorityQueue.peek();
+						hasArrivedAtTarget = false;
+					}
+
 					if (result == Result.FAIL) {
-						// TODO
+						// TODO unbekannte obstacles
 						return;
 					}
+
+
 
 					if (!hasArrivedAtTarget) {
 						// Agent hasn't arrived at target, so conduct the planned move
@@ -254,7 +247,7 @@ public class WorkerBean extends AbstractAgentBean {
 					}
 				}
 
-				if (payload instanceof OrderCompleted){
+				/*if (payload instanceof OrderCompleted){
 					// TODO if FAIL anders reagieren?
 					if(((OrderCompleted) payload).state == Result.SUCCESS){
 					priorityQueue.poll();
@@ -262,7 +255,7 @@ public class WorkerBean extends AbstractAgentBean {
 					handleOrder = priorityQueue.peek();
 					hasArrivedAtTarget = false;
 					}
-				}
+				}*/
 
 			}
 		}
@@ -288,15 +281,23 @@ public class WorkerBean extends AbstractAgentBean {
 		// TODO
 	}
 
+	/** evaluate when we'll probably be at the target to decide if move is possible before deadline */
+	private int possibleEnd(Position target){
+		Position goal = position;
+		int time = 0;
+		for (Order order: priorityQueue) {
+			time += order.position.distance(goal) + 1;
+			goal = order.position;
+		}
+		time += target.distance(goal);
+		return time;
+	}
+
 	/** calculate next move */
 	private WorkerAction getNextMove(Position current, Position target) {
 		// TODO
 		if (current.equals(target)) {
 			hasArrivedAtTarget = true;
-			priorityQueue.poll();
-			System.out.println("SUCCESS " + handleOrder);
-			handleOrder = priorityQueue.peek();
-			hasArrivedAtTarget = false;
 			return WorkerAction.ORDER;
 		}
 		// [N, S, E, W]
