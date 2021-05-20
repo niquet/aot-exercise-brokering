@@ -61,6 +61,9 @@ public class WorkerBean extends AbstractAgentBean {
 	private Integer gameId = null;
 
 	private Position position = null;
+	private WorkerAction lastMove = null;
+	private Boolean lastMoveFailed = false;
+
 	private String workerIdForServer = null;
 	private ICommunicationAddress broker = null;
 
@@ -105,7 +108,8 @@ public class WorkerBean extends AbstractAgentBean {
 				if(position == null)
 					return;
 				WorkerMessage move = new WorkerMessage();
-				move.action = getNextMove(position, firstOrder.position);
+				move.action = getNextMove(position, firstOrder.position, lastMoveFailed);
+				lastMove = move.action;
 				move.gameId = gameId;
 				move.workerId = workerIdForServer;
 				//System.out.println("WORKERIDFORSERVER " + workerIdForServer);
@@ -227,14 +231,17 @@ public class WorkerBean extends AbstractAgentBean {
 
 					if (result == Result.FAIL) {
 						// TODO unbekannte obstacles
+						if(workerConfirm.action != WorkerAction.ORDER) {
+							lastMoveFailed = true;
+						}
+
 						return;
 					}
-
-
 
 					if (!hasArrivedAtTarget) {
 						// Agent hasn't arrived at target, so conduct the planned move
 						doMove(workerConfirm.action);
+						lastMoveFailed = false;
 						// Update position at broker
 						PositionUpdate positionUpdate = new PositionUpdate();
 						positionUpdate.workerId = thisAgent.getAgentId();
@@ -294,21 +301,45 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	/** calculate next move */
-	private WorkerAction getNextMove(Position current, Position target) {
+	private WorkerAction getNextMove(Position current, Position target, Boolean lastMoveFailed) {
 		// TODO
 		if (current.equals(target)) {
 			hasArrivedAtTarget = true;
 			return WorkerAction.ORDER;
 		}
-		// [N, S, E, W]
-		Position N = new Position(current.x, current.y - 1);
-		Position S = new Position(current.x, current.y + 1);
-		Position E = new Position(current.x + 1, current.y);
-		Position W = new Position(current.x - 1, current.y);
 
-		int[] distances = { target.distance(N), target.distance(S), target.distance(E), target.distance(W) };
+		int[] distances = null;
 
-		WorkerAction workerAction;
+		if (lastMoveFailed) {
+
+			switch (lastMove) {
+				case NORTH:
+				case SOUTH:
+					Position E = new Position(current.x + 1, current.y);
+					Position W = new Position(current.x - 1, current.y);
+					distances = { target.distance(E), target.distance(W) };
+					break;
+				case EAST:
+				case WEST:
+					Position N = new Position(current.x, current.y - 1);
+					Position S = new Position(current.x, current.y + 1);
+					distances = { target.distance(N), target.distance(S) };
+					break;
+			}
+
+		} else {
+
+			// [N, S, E, W]
+			Position N = new Position(current.x, current.y - 1);
+			Position S = new Position(current.x, current.y + 1);
+			Position E = new Position(current.x + 1, current.y);
+			Position W = new Position(current.x - 1, current.y);
+
+			distances = {target.distance(N), target.distance(S), target.distance(E), target.distance(W)};
+
+		}
+
+		WorkerAction workerAction = null;
 		int index = -1;
 		int min = Integer.MAX_VALUE;
 
