@@ -1,0 +1,4 @@
+- Nachrichten packen in Methoden auslagern
+- Globale Variablen sortieren
+- Klassen erstellen die im Hintergrund Globale Daten vorhalten und sortieren
+- Datenstrukturen für alles erstellen
