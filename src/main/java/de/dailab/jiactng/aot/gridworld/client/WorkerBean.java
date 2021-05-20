@@ -46,12 +46,12 @@ public class WorkerBean extends AbstractAgentBean {
 	private final Comparator<Order> compareOrder = new Comparator<Order>() {
 		@Override
 		public int compare(Order o1, Order o2) {
-			/*int p1 = position.distance(o1.position);
+			int p1 = position.distance(o1.position);
 			int p2 = position.distance(o2.position);
 			if(p1 < p2) return -1;
-			if(p1 > p2) return 1;*/
-			if(o1.deadline < o2.deadline) return -1;
-			if(o1.deadline > o2.deadline) return 1;
+			if(p1 > p2) return 1;
+			//if(o1.deadline < o2.deadline) return -1;
+			//if(o1.deadline > o2.deadline) return 1;
 			return 0;
 		}
 	};
@@ -162,13 +162,13 @@ public class WorkerBean extends AbstractAgentBean {
 						assignOrderConfirm.state = Result.FAIL;
 
 						//TODO is it possible for us to complete this order - Funktion erstellen mit der man Priority Queue neu evaluiert
-						if(possibleEnd(order.position) < order.deadline) {
+						//if(possibleEnd(order.position) < order.deadline) {
 							orderToAddress.put(order, server);
 							//currentOrders.put(order.id, order);
 							priorityQueue.add(order);
 							//orderQueue.push(order.id);
 							assignOrderConfirm.state = Result.SUCCESS;
-						}
+						//}
 
 						if (priorityQueue.contains(order) && handleOrder == null) handleOrder = order;
 							sendMessage(broker, assignOrderConfirm);
