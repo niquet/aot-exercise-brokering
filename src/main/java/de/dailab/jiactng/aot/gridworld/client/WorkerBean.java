@@ -93,7 +93,6 @@ public class WorkerBean extends AbstractAgentBean {
 		/*
 		 * this is executed periodically by the agent; check the BrokerBean.java for an example.
 		 */
-	// TODO what to do for each execute
 
 		// if we already have assignments
 		if(!priorityQueue.isEmpty()) {
@@ -321,13 +320,13 @@ public class WorkerBean extends AbstractAgentBean {
 					Position E = new Position(current.x + 1, current.y);
 					Position W = new Position(current.x - 1, current.y);
 					distances = new int[]{target.distance(E), target.distance(W)};
-					break;
+					return (distances[0] > distances[1]) ? WorkerAction.EAST:WorkerAction.WEST;
 				case EAST:
 				case WEST:
 					Position N = new Position(current.x, current.y - 1);
 					Position S = new Position(current.x, current.y + 1);
 					distances = new int[]{target.distance(N), target.distance(S)};
-					break;
+					return (distances[0] > distances[1]) ? WorkerAction.NORTH:WorkerAction.SOUTH;
 			}
 
 		} else {
