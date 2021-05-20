@@ -240,6 +240,8 @@ public class BrokerBean extends AbstractAgentBean {
 					continue;
 				}
 
+
+				// TODO Sichergehen dass Worker Position kennt!!!
 				// TODO send serverAddress
 				// Assign order to Worker(Bean)
 				// Send the order to the first agent

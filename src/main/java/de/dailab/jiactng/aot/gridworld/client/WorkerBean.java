@@ -57,7 +57,6 @@ public class WorkerBean extends AbstractAgentBean {
 		}
 	};
 	private PriorityQueue<Order> priorityQueue = new PriorityQueue<>(compareOrder);
-	private Boolean isHandlingOrder = false;
 	private Order handleOrder = null;
 	private Boolean hasArrivedAtTarget = false;
 	private Integer gameId = null;
@@ -104,7 +103,7 @@ public class WorkerBean extends AbstractAgentBean {
 			Order firstOrder = currentOrders.get(orderId);
 			System.out.println("ORDER IS " + firstOrder);*/
 
-			Order firstOrder = handleOrder; //priorityQueue.element();
+			Order firstOrder = handleOrder; //priorityQueue.peek();
 
 			/**
 			 * We handle the order
@@ -166,10 +165,6 @@ public class WorkerBean extends AbstractAgentBean {
 					ICommunicationAddress server = assignOrderMessage.server;
 					if (position != null) {
 						//Map<Order, ICommunicationAddress> orderWithServer = new HashMap<>();
-						orderToAddress.put(order, server);
-						//currentOrders.put(order.id, order);
-						priorityQueue.add(order);
-						//orderQueue.push(order.id);
 
 						// TODO do something / evaluate
 
@@ -177,20 +172,26 @@ public class WorkerBean extends AbstractAgentBean {
 						assignOrderConfirm.orderId = order.id;
 						assignOrderConfirm.gameId = assignOrderMessage.gameId;
 						assignOrderConfirm.workerId = thisAgent.getAgentId();
+						assignOrderConfirm.state = Result.FAIL;
 
-						if (handleOrder == null) handleOrder = order;
-						//position.distance(order.position) <= position.distance(handleOrder.position)
-						//TODO reasons we don't want to take the order
-						if (position.distance(order.position) <= position.distance(handleOrder.position)) {
-							if (priorityQueue.element() == order) {
-								assignOrderConfirm.state = Result.SUCCESS;
-								handleOrder = order;
-							} else {
-								assignOrderConfirm.state = Result.FAIL;
-							}
-
-							sendMessage(broker, assignOrderConfirm);
+						//TODO is it possible for us to complete this order - Funktion erstellen mit der man Priority Queue neu evaluiert
+						if(position.distance(order.position) < order.deadline) {
+							orderToAddress.put(order, server);
+							//currentOrders.put(order.id, order);
+							priorityQueue.add(order);
+							//orderQueue.push(order.id);
+							assignOrderConfirm.state = Result.SUCCESS;
 						}
+						if (priorityQueue.contains(order) && handleOrder == null) handleOrder = order;
+
+						//TODO reasons we don't want to take the order
+						/*if (handleOrder == null) assignOrderConfirm.state = Result.FAIL;
+						else if (position.distance(order.position) <= position.distance(handleOrder.position)) {
+							assignOrderConfirm.state = Result.SUCCESS;
+						} else {
+								assignOrderConfirm.state = Result.FAIL;
+							}*/
+							sendMessage(broker, assignOrderConfirm);
 					}
 				}
 
@@ -245,7 +246,6 @@ public class WorkerBean extends AbstractAgentBean {
 					Result result = workerConfirm.state;
 
 					if (result == Result.FAIL) {
-						System.out.println("FAIL - Message not confirmed");
 						// TODO
 						return;
 					}
@@ -267,10 +267,12 @@ public class WorkerBean extends AbstractAgentBean {
 
 				if (payload instanceof OrderCompleted){
 					// TODO if FAIL anders reagieren?
+					if(((OrderCompleted) payload).state == Result.SUCCESS){
 					priorityQueue.poll();
 					System.out.println("SUCCESS " + handleOrder);
-					handleOrder = priorityQueue.element();
+					handleOrder = priorityQueue.peek();
 					hasArrivedAtTarget = false;
+					}
 				}
 
 			}
@@ -302,6 +304,10 @@ public class WorkerBean extends AbstractAgentBean {
 		// TODO
 		if (current.equals(target)) {
 			hasArrivedAtTarget = true;
+			priorityQueue.poll();
+			System.out.println("SUCCESS " + handleOrder);
+			handleOrder = priorityQueue.peek();
+			hasArrivedAtTarget = false;
 			return WorkerAction.ORDER;
 		}
 		// [N, S, E, W]
@@ -324,8 +330,6 @@ public class WorkerBean extends AbstractAgentBean {
 			}
 
 		}
-
-
 
 		switch(index) {
 			case 1:
