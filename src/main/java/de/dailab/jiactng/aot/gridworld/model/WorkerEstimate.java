@@ -1,13 +1,14 @@
 package de.dailab.jiactng.aot.gridworld.model;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class WorkerEstimate {
 
     private String workerId;
     private Worker worker;
     private Position position;
-    private ArrayList<Order> orders;
+    private LinkedList<Order> orderQueue;
     private Integer duration;
 
     public WorkerEstimate(Worker worker) {
@@ -29,24 +30,28 @@ public class WorkerEstimate {
         int bestIndex = -1;
         int minDuration = Integer.MAX_VALUE;
 
-        for (int index = 0; index <= orders.size(); index++) {
-            ArrayList<Order> temporaryOrders = orders;
+        for (int index = 0; index <= orderQueue.size(); index++) {
+            LinkedList<Order> temporaryOrders = orderQueue;
             temporaryOrders.add(index, order);
 
             int currentDuration = calculateDuration(temporaryOrders);
-            if(currentDuration == -1)
+            if(currentDuration == -1) {
+                temporaryOrders.remove(order);
                 continue;
+            }
+
             if(currentDuration < minDuration) {
                 minDuration = currentDuration;
                 bestIndex = index;
             }
 
+            temporaryOrders.remove(order);
         }
 
         return bestIndex;
     }
 
-    private int calculateDuration(ArrayList<Order> orders) {
+    private int calculateDuration(LinkedList<Order> orders) {
         Position currentPosition = this.position;
         int currentDuration = 0;
 
@@ -63,13 +68,13 @@ public class WorkerEstimate {
 
     public void assignOrder(Order order) {
 
-        this.orders.add(order);
+        this.orderQueue.add(order);
 
     }
 
     public void removeOrder(Order order) {
 
-        this.orders.remove(order);
+        this.orderQueue.remove(order);
 
     }
 
@@ -78,7 +83,7 @@ public class WorkerEstimate {
         Position currentPosition = this.position;
         int currentDistance = 0;
 
-        for(Order currentOrder: orders) {
+        for(Order currentOrder: orderQueue) {
 
             currentDistance += currentOrder.position.distance(currentPosition);
             currentDistance += 1;

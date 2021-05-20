@@ -34,6 +34,12 @@ public class BrokerBean extends AbstractAgentBean {
 	private List<IAgentDescription> agentDescriptions = null;
 	private GridworldGame gridworldGame = null;
 
+	/**
+	 * Matrix to calculate the shortest path with obstacles on the way
+	 */
+	private int[][] pathFindingObstacles = null;
+
+
 	private Map<String, Order> orderMap = new HashMap<>();
 	// Worker mapped to position
 	// ! -- Get workerId String from workerIdReverseAId to use this map
@@ -93,7 +99,7 @@ public class BrokerBean extends AbstractAgentBean {
 			if (!hasGameStarted) {
 				StartGameMessage startGameMessage = new StartGameMessage();
 				startGameMessage.brokerId = thisAgent.getAgentId();
-				startGameMessage.gridFile = "/grids/04_1.grid";
+				startGameMessage.gridFile = "/grids/22_1.grid";
 				// Send StartGameMessage(BrokerID)
 				sendMessage(server, startGameMessage);
 
@@ -127,7 +133,10 @@ public class BrokerBean extends AbstractAgentBean {
 
 				// TODO handle movements and obstacles
 				this.gridworldGame = new GridworldGame();
+				this.gridworldGame.size = startGameResponse.size;
 				this.gridworldGame.obstacles.addAll(startGameResponse.obstacles);
+				pathFindingObstacles = new int[gridworldGame.size.x][gridworldGame.size.y];
+
 
 				// Send each Agent their current position
 				PositionMessage positionMessage = new PositionMessage();
@@ -341,6 +350,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 			currentWorkerPosition = positionMap.get(currentWorkerId);
 			currentDistance = orderPosition.distance(currentWorkerPosition);
+			//currentDistance = calculateDistanceWithObstacles(currentWorkerPosition, orderPosition);
 			if (orderPosition.distance(currentWorkerPosition) < minimum) {
 				minimum = currentDistance;
 				workerAddress = workerIdMap.get(currentWorkerId).getMessageBoxAddress();
@@ -400,5 +410,120 @@ public class BrokerBean extends AbstractAgentBean {
 		invoke(sendAction, new Serializable[] {message, receiver});
 		System.out.println("BROKER SENDING " + payload);
 	}
+
+	private void initPathFindingObstacles(Set<Position> obstacles) {
+		for(int x = 0; x < pathFindingObstacles.length; x++) {
+			for(int y = 0; y < pathFindingObstacles[x].length; y++) {
+				pathFindingObstacles[y][x] = -1;
+			}
+		}
+		for (Position obstacle: obstacles) {
+			pathFindingObstacles[obstacle.y][obstacle.x] = 1000000;
+		}
+	}
+
+	/**
+	 * Calculates the distance of the two positions workerPosition and orderPosition based on
+	 * the known obstacles which are entered in pathFindingObstaclesx
+	 * @param workerPosition
+	 * @param orderPosition
+	 */
+	private int calculateDistanceWithObstacles(Position workerPosition, Position orderPosition) {
+		for(int x = 0; x < pathFindingObstacles.length; x++) {
+			for(int y = 0; y < pathFindingObstacles[x].length; y++) {
+				if(pathFindingObstacles[y][x] >= 1000000)
+					pathFindingObstacles[y][x] = 1000000;
+				else
+					pathFindingObstacles[y][x] = -1;
+			}
+		}
+		pathFindingObstacles[workerPosition.y][workerPosition.x] = 0;
+
+		for(int i = 0; i < 100000; i++) {
+			for(int x = 0; x < pathFindingObstacles.length; x++) {
+				for(int y = 0; y < pathFindingObstacles[x].length; y++) {
+					if (pathFindingObstacles[y][x] == i) {
+						tryCalculation(y + 1, x, i);
+						tryCalculation(y, x + 1, i);
+						tryCalculation(y - 1, x, i);
+						tryCalculation(y, x - 1, i);
+					}
+				}
+			}
+			if (pathFindingObstacles[orderPosition.y][orderPosition.x] >= 0) {
+				getMoveWithObstacles(orderPosition, workerPosition);
+				return pathFindingObstacles[orderPosition.y][orderPosition.x];
+			}
+		}
+		return -1;
+	}
+
+	private void tryCalculation(Integer y, Integer x, Integer number) {
+		try {
+			if(pathFindingObstacles[y][x] == -1)
+				pathFindingObstacles[y][x] = number;
+		} catch(Exception e) {
+		}
+	}
+
+	/**
+	 * Returns the correct Move to make based on the Status of pathFindingObstacles Array
+	 * @param orderPosition
+	 * @param workerPosition
+	 * @return
+	 */
+	private WorkerAction getMoveWithObstacles(Position orderPosition, Position workerPosition) {
+		Position currentPosition = orderPosition;
+		while(true) {
+			currentPosition = tryFinding(currentPosition);
+			if(pathFindingObstacles[currentPosition.y][currentPosition.x] == 1) {
+				// TODO get the right move
+				if(workerPosition.x - currentPosition.x == 0) {
+					if(workerPosition.y - currentPosition.y == 1) {
+						return WorkerAction.NORTH;
+					}
+					return WorkerAction.SOUTH;
+				}
+				if(workerPosition.y - currentPosition.y == 1)
+					return WorkerAction.WEST;
+				return WorkerAction.EAST;
+			}
+		}
+	}
+
+	/**
+	 * Brute forces the correct move to make
+	 * @param position
+	 * @return
+	 */
+	private Position tryFinding(Position position) {
+		try {
+			int difference = pathFindingObstacles[position.y][position.x] - pathFindingObstacles[position.y + 1][position.x];
+			if(difference == 1)
+				return new Position(position.x, position.y + 1);
+		} catch(Exception e) {
+		}
+		try {
+			int difference = pathFindingObstacles[position.y][position.x] - pathFindingObstacles[position.y - 1][position.x];
+			if(difference == 1)
+				return new Position(position.x, position.y - 1);
+		} catch(Exception e) {
+		}
+		try {
+			int difference = pathFindingObstacles[position.y][position.x] - pathFindingObstacles[position.y][position.x + 1];
+			if(difference == 1)
+				return new Position(position.x + 1, position.y);
+		} catch(Exception e) {
+		}
+		try {
+			int difference = pathFindingObstacles[position.y][position.x] - pathFindingObstacles[position.y][position.x - 1];
+			if(difference == 1)
+				return new Position(position.x - 1, position.y);
+		} catch(Exception e) {
+		}
+
+		return new Position(0, 0);
+	}
+
 
 }

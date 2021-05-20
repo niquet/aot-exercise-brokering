@@ -189,6 +189,7 @@ public class WorkerBean extends AbstractAgentBean {
 							System.out.println("DIE ORDER QUEUE BEIM WORKER IST " + orderQueue.toString());
 							assignOrderConfirm.state = Result.SUCCESS;
 						}
+						sendMessage(broker, assignOrderConfirm);
 
 						/*
 						//position.distance(order.position) <= position.distance(handleOrder.position)
