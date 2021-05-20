@@ -46,12 +46,12 @@ public class WorkerBean extends AbstractAgentBean {
 	private final Comparator<Order> compareOrder = new Comparator<Order>() {
 		@Override
 		public int compare(Order o1, Order o2) {
-			int p1 = position.distance(o1.position);
+			/*int p1 = position.distance(o1.position);
 			int p2 = position.distance(o2.position);
 			if(p1 < p2) return -1;
-			if(p1 > p2) return 1;
-			//if(o1.deadline < o2.deadline) return -1;
-			//if(o1.deadline > o2.deadline) return 1;
+			if(p1 > p2) return 1;*/
+			if(o1.deadline < o2.deadline) return -1;
+			if(o1.deadline > o2.deadline) return 1;
 			return 0;
 		}
 	};
@@ -198,6 +198,9 @@ public class WorkerBean extends AbstractAgentBean {
 						return;
 					}
 
+					positionConfirm.state = Result.SUCCESS;
+					sendMessage(brokerAddress, positionConfirm);
+
 					/**
 					 * Only set position if it is for us
 					 */
@@ -317,13 +320,13 @@ public class WorkerBean extends AbstractAgentBean {
 				case SOUTH:
 					Position E = new Position(current.x + 1, current.y);
 					Position W = new Position(current.x - 1, current.y);
-					distances = { target.distance(E), target.distance(W) };
+					distances = new int[]{target.distance(E), target.distance(W)};
 					break;
 				case EAST:
 				case WEST:
 					Position N = new Position(current.x, current.y - 1);
 					Position S = new Position(current.x, current.y + 1);
-					distances = { target.distance(N), target.distance(S) };
+					distances = new int[]{target.distance(N), target.distance(S)};
 					break;
 			}
 
@@ -335,7 +338,7 @@ public class WorkerBean extends AbstractAgentBean {
 			Position E = new Position(current.x + 1, current.y);
 			Position W = new Position(current.x - 1, current.y);
 
-			distances = {target.distance(N), target.distance(S), target.distance(E), target.distance(W)};
+			distances = new int[]{target.distance(N), target.distance(S), target.distance(E), target.distance(W)};
 
 		}
 

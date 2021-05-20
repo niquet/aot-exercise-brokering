@@ -34,10 +34,10 @@ public class BrokerBean extends AbstractAgentBean {
 	private List<IAgentDescription> agentDescriptions = null;
 	private GridworldGame gridworldGame = null;
 
-	private Map<String, Order> orderMap = new HashMap<>();
+	private final Map<String, Order> orderMap = new HashMap<>();
 	// Worker mapped to position
 	// ! -- Get workerId String from workerIdReverseAId to use this map
-	private Map<String, Position> positionMap = new HashMap<>();
+	private final Map<String, Position> positionMap = new HashMap<>();
 
 	/* A Map to map worker Ids to IAgentDescription to get an address with a worker Id
 	 this Map is not registered by the server and but only a mapping for us
@@ -45,9 +45,13 @@ public class BrokerBean extends AbstractAgentBean {
 	private Map<String, IAgentDescription> workerIdMap = new HashMap<>();
 	// Map AgentID to worker ID
 	private Map<String, String> workerIdReverseAID = new HashMap<>();
+	private ArrayList<ICommunicationAddress> activeWorkers = new ArrayList<>();
+	private ArrayList<String> orderMessages = new ArrayList<>();
 
 	// TODO
 	private ArrayList<WorkerEstimate> workerEstimates = new ArrayList<>();
+	private int reward;
+	private int gameId;
 
 	@Override
 	public void doStart() throws Exception {
@@ -96,13 +100,14 @@ public class BrokerBean extends AbstractAgentBean {
 				startGameMessage.gridFile = "/grids/22_1.grid";
 				// Send StartGameMessage(BrokerID)
 				sendMessage(server, startGameMessage);
-
+				reward = 0;
 				this.hasGameStarted = true;
 			}
 
 		} else {
 			System.out.println("SERVER NOT FOUND!");
 		}
+
 
 		/* example of handling incoming messages without listener */
 		for (JiacMessage message : memory.removeAll(new JiacMessage())) {
@@ -112,11 +117,11 @@ public class BrokerBean extends AbstractAgentBean {
 				/* do something */
 
 				// TODO
-				// this.hasGameStarted = true;
 				StartGameResponse startGameResponse = (StartGameResponse) message.getPayload();
 
 				int maxNumberOfAgents = startGameResponse.initialWorkers.size();
 				this.agentDescriptions = getMyWorkerAgents(maxNumberOfAgents);
+				this.gameId = startGameResponse.gameId;
 
 				/**
 				 *
@@ -158,7 +163,6 @@ public class BrokerBean extends AbstractAgentBean {
 					IAgentDescription agentDescription = workerIdMap.get(worker.id);
 					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
 
-
 					positionMessage.workerId = agentDescription.getAid();
 					positionMessage.gameId = startGameResponse.gameId;
 					positionMessage.position = worker.position;
@@ -188,8 +192,21 @@ public class BrokerBean extends AbstractAgentBean {
 					positionMessage.workerIdForServer = workerId;
 
 					sendMessage(workerAddress, positionMessage);
+				} else {
+					activeWorkers.add(message.getSender());
+					for (String orderId: orderMessages) {
+						ICommunicationAddress workerAddress = decideOrderAssigment(this.orderMap.get(orderId));
+						if(workerAddress.equals(message.getSender())){
+							AssignOrderMessage assignOrderMessage = new AssignOrderMessage();
+							assignOrderMessage.order = this.orderMap.get(orderId);
+							assignOrderMessage.gameId = gameId;
+							assignOrderMessage.server = this.server;
+							if(activeWorkers.contains(workerAddress)){
+								sendMessage(workerAddress, assignOrderMessage);
+							}
+						}
+					}
 				}
-
 
 			}
 
@@ -241,7 +258,6 @@ public class BrokerBean extends AbstractAgentBean {
 				}
 
 
-				// TODO Sichergehen dass Worker Position kennt!!!
 				// TODO send serverAddress
 				// Assign order to Worker(Bean)
 				// Send the order to the first agent
@@ -249,9 +265,12 @@ public class BrokerBean extends AbstractAgentBean {
 				assignOrderMessage.order = this.orderMap.get(takeOrderConfirm.orderId);
 				assignOrderMessage.gameId = takeOrderConfirm.gameId;
 				assignOrderMessage.server = this.server;
-
 				ICommunicationAddress workerAddress = decideOrderAssigment(assignOrderMessage.order);
-				sendMessage(workerAddress, assignOrderMessage);
+				if(activeWorkers.contains(workerAddress)){
+					sendMessage(workerAddress, assignOrderMessage);
+				} else {
+					orderMessages.add(takeOrderConfirm.orderId);
+				}
 
 			}
 
@@ -270,7 +289,9 @@ public class BrokerBean extends AbstractAgentBean {
 					continue;
 				}
 
-				// TODO Inform other workers that this task is taken
+				orderMessages.remove(assignOrderConfirm.orderId);
+
+				// TODO Inform other workers that this task is taken - notwendig??
 
 			}
 
@@ -280,10 +301,12 @@ public class BrokerBean extends AbstractAgentBean {
 				Result result = orderCompleted.state;
 
 				if (result == Result.FAIL) {
-					// TODO Handle failed order completion
+					// TODO Handle failed order completion -> minus points for non handled rewards
+					reward += orderCompleted.reward;
 					continue;
 				}
 
+				reward += orderCompleted.reward;
 				// TODO remove order from the worker specific order queues
 
 			}
@@ -299,7 +322,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 				EndGameMessage endGameMessage = (EndGameMessage) message.getPayload();
 				// TODO lernen lernen lernen lol
-
+				System.out.println("Reward: " + reward);
 			}
 
 		}
