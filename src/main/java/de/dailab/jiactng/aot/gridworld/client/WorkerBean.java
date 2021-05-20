@@ -47,12 +47,12 @@ public class WorkerBean extends AbstractAgentBean {
 	private Comparator<Order> compareOrder = new Comparator<Order>() {
 		@Override
 		public int compare(Order o1, Order o2) {
-			int p1 = position.distance(o1.position);
+			/*int p1 = position.distance(o1.position);
 			int p2 = position.distance(o2.position);
 			if(p1 < p2) return -1;
-			if(p1 > p2) return 1;
-			/*if(o1.deadline < o2.deadline) return -1;
-			if(o1.deadline > o2.deadline) return 1;*/
+			if(p1 > p2) return 1;*/
+			if(o1.deadline < o2.deadline) return -1;
+			if(o1.deadline > o2.deadline) return 1;
 			return 0;
 		}
 	};
@@ -182,15 +182,8 @@ public class WorkerBean extends AbstractAgentBean {
 							//orderQueue.push(order.id);
 							assignOrderConfirm.state = Result.SUCCESS;
 						}
-						if (priorityQueue.contains(order) && handleOrder == null) handleOrder = order;
 
-						//TODO reasons we don't want to take the order
-						/*if (handleOrder == null) assignOrderConfirm.state = Result.FAIL;
-						else if (position.distance(order.position) <= position.distance(handleOrder.position)) {
-							assignOrderConfirm.state = Result.SUCCESS;
-						} else {
-								assignOrderConfirm.state = Result.FAIL;
-							}*/
+						if (priorityQueue.contains(order) && handleOrder == null) handleOrder = order;
 							sendMessage(broker, assignOrderConfirm);
 					}
 				}
@@ -207,9 +200,6 @@ public class WorkerBean extends AbstractAgentBean {
 					PositionConfirm positionConfirm = new PositionConfirm();
 					positionConfirm.workerId = thisAgent.getAgentId();
 					positionConfirm.gameId = positionMessage.gameId;
-					//System.out.println("WORKER NAME IST: " + thisAgent.getAgentName());
-					//System.out.println("WORKER NODE IST: " + thisAgent.getAgentNode());
-					System.out.println("WORKER.toString() IST: " + thisAgent.toString());
 
 					/**
 					 * Send Position confirm with FAIL if the message is not for us
@@ -226,7 +216,6 @@ public class WorkerBean extends AbstractAgentBean {
 					if(position == null || workerIdForServer == null) {
 						position = positionMessage.position;
 						workerIdForServer = positionMessage.workerIdForServer;
-
 					}
 
 
