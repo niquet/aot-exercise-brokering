@@ -277,12 +277,21 @@ public class BrokerBean extends AbstractAgentBean {
 				OrderCompleted orderCompleted = (OrderCompleted) message.getPayload();
 				Result result = orderCompleted.state;
 
+
 				if (result == Result.FAIL) {
 					// TODO Handle failed order completion
 					continue;
 				}
 
+				// TODO Infrom the worker that the task is done
+				/**
+				 * We can ignore that part for now as the worker is not interested in the fact whether he has completet the task
+				 * successfully but only needs to know that the task is finished
+				 */
+
+
 				// TODO remove order from the worker specific order queues
+
 
 			}
 

@@ -43,7 +43,8 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private Map<String, Order> currentOrders = new HashMap<>();
 	private Map<Order, ICommunicationAddress> orderToAddress = new HashMap<>();
-	private LinkedList<String> orderQueue = new LinkedList<>();
+	//private LinkedList<String> orderQueue = new LinkedList<>();
+
 	private Comparator<Order> compareOrder = new Comparator<Order>() {
 		@Override
 		public int compare(Order o1, Order o2) {
@@ -56,7 +57,8 @@ public class WorkerBean extends AbstractAgentBean {
 			return 0;
 		}
 	};
-	private PriorityQueue<Order> priorityQueue = new PriorityQueue<>(compareOrder);
+	//private PriorityQueue<Order> priorityQueue = new PriorityQueue<>(compareOrder);
+	private LinkedList<Order> orderQueue = new LinkedList<>();
 	private Boolean isHandlingOrder = false;
 	private Order handleOrder = null;
 	private Boolean hasArrivedAtTarget = false;
@@ -94,17 +96,15 @@ public class WorkerBean extends AbstractAgentBean {
 		 */
 		// TODO
 
-		// notify -> if new Order arrived
-			// evaluateOrder();
-			// sortOrders();
+		if(!orderQueue.isEmpty()) {
 
+			//Order firstOrder = handleOrder; //priorityQueue.element();
 
-		if(!priorityQueue.isEmpty()) {
-			/*String orderId = orderQueue.peekFirst();
-			Order firstOrder = currentOrders.get(orderId);
-			System.out.println("ORDER IS " + firstOrder);*/
+			Order firstOrder = orderQueue.peekFirst();
+			handleOrder = firstOrder;
+			System.out.println("Aktuelle ORDER ZUM SCHAUEN : " + firstOrder.toString());
+			System.out.println("Aktuelle ORDERQUEUE IST : " + orderQueue.toString());
 
-			Order firstOrder = handleOrder; //priorityQueue.element();
 
 			/**
 			 * We handle the order
@@ -127,7 +127,6 @@ public class WorkerBean extends AbstractAgentBean {
 				move.action = getNextMove(position, firstOrder.position);
 				move.gameId = gameId;
 				move.workerId = workerIdForServer;
-				//System.out.println("WORKERIDFORSERVER " + workerIdForServer);
 
 				sendMessage(orderToAddress.get(firstOrder), move);
 
@@ -135,13 +134,9 @@ public class WorkerBean extends AbstractAgentBean {
 
 	}
 
-
-
-
 	/*
 	 * You can implement some functions and helper methods here.
 	 */
-
 
 
 	/** This is an example of using the SpaceObeserver for message processing. */
@@ -159,17 +154,21 @@ public class WorkerBean extends AbstractAgentBean {
 					if (gameId == null) gameId = ((AssignOrderMessage) message.getPayload()).gameId;
 
 					ICommunicationAddress broker = message.getSender();
-
 					AssignOrderMessage assignOrderMessage = (AssignOrderMessage) message.getPayload();
+					ICommunicationAddress server = assignOrderMessage.server;
 
 					Order order = assignOrderMessage.order;
-					ICommunicationAddress server = assignOrderMessage.server;
+
+
 					if (position != null) {
-						//Map<Order, ICommunicationAddress> orderWithServer = new HashMap<>();
-						orderToAddress.put(order, server);
 						//currentOrders.put(order.id, order);
-						priorityQueue.add(order);
 						//orderQueue.push(order.id);
+
+						/**
+						 * We want to add the order only if we accepted
+						 */
+
+
 
 						// TODO do something / evaluate
 
@@ -178,11 +177,24 @@ public class WorkerBean extends AbstractAgentBean {
 						assignOrderConfirm.gameId = assignOrderMessage.gameId;
 						assignOrderConfirm.workerId = thisAgent.getAgentId();
 
-						if (handleOrder == null) handleOrder = order;
+
+						//if (handleOrder == null) handleOrder = order;
+
+						int indexToPut = checkOrder(order);
+						if(indexToPut == -1) {
+							assignOrderConfirm.state = Result.FAIL;
+						} else {
+							orderToAddress.put(order, server);
+							orderQueue.add(indexToPut, order);
+							System.out.println("DIE ORDER QUEUE BEIM WORKER IST " + orderQueue.toString());
+							assignOrderConfirm.state = Result.SUCCESS;
+						}
+
+						/*
 						//position.distance(order.position) <= position.distance(handleOrder.position)
 						//TODO reasons we don't want to take the order
 						if (position.distance(order.position) <= position.distance(handleOrder.position)) {
-							if (priorityQueue.element() == order) {
+							if (orderQueue.element() == order) {
 								assignOrderConfirm.state = Result.SUCCESS;
 								handleOrder = order;
 							} else {
@@ -191,6 +203,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 							sendMessage(broker, assignOrderConfirm);
 						}
+						*/
 					}
 				}
 
@@ -243,6 +256,14 @@ public class WorkerBean extends AbstractAgentBean {
 
 					WorkerConfirm workerConfirm = (WorkerConfirm) message.getPayload();
 					Result result = workerConfirm.state;
+					if(workerConfirm.action == WorkerAction.ORDER) {
+						orderQueue.remove();
+						currentOrders.remove(handleOrder.id);
+						orderToAddress.remove(handleOrder);
+						//System.out.println("SUCCESS " + handleOrder);
+						//handleOrder = orderQueue.element();
+						hasArrivedAtTarget = false;
+					}
 
 					if (result == Result.FAIL) {
 						System.out.println("FAIL - Message not confirmed");
@@ -267,9 +288,13 @@ public class WorkerBean extends AbstractAgentBean {
 
 				if (payload instanceof OrderCompleted){
 					// TODO if FAIL anders reagieren?
-					priorityQueue.poll();
-					System.out.println("SUCCESS " + handleOrder);
-					handleOrder = priorityQueue.element();
+					OrderCompleted orderCompleted = (OrderCompleted) message.getPayload();
+					//orderQueue.remove(currentOrders.get(orderCompleted.orderId));
+					orderQueue.remove();
+					currentOrders.remove(orderCompleted.orderId);
+					orderToAddress.remove(currentOrders.get(orderCompleted.orderId));
+					//System.out.println("SUCCESS " + handleOrder);
+					//handleOrder = orderQueue.element();
 					hasArrivedAtTarget = false;
 				}
 
@@ -367,24 +392,28 @@ public class WorkerBean extends AbstractAgentBean {
 		int bestIndex = -1;
 		int minDuration = Integer.MAX_VALUE;
 
-		for (int index = 0; index <= orders.size(); index++) {
-			ArrayList<Order> temporaryOrders = orders;
+		for (int index = 0; index <= orderQueue.size(); index++) {
+			LinkedList<Order> temporaryOrders = orderQueue;
 			temporaryOrders.add(index, order);
 
 			int currentDuration = calculateDuration(temporaryOrders);
-			if(currentDuration == -1)
+			if(currentDuration == -1) {
+				temporaryOrders.remove(order);
 				continue;
+			}
+
 			if(currentDuration < minDuration) {
 				minDuration = currentDuration;
 				bestIndex = index;
 			}
 
+			temporaryOrders.remove(order);
 		}
 
 		return bestIndex;
 	}
 
-	private int calculateDuration(ArrayList<Order> orders) {
+	private int calculateDuration(LinkedList<Order> orders) {
 		Position currentPosition = this.position;
 		int currentDuration = 0;
 
