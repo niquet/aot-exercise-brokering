@@ -101,7 +101,7 @@ public class BrokerBean_RewardOptimization extends AbstractAgentBean {
 			if (!hasGameStarted) {
 				StartGameMessage startGameMessage = new StartGameMessage();
 				startGameMessage.brokerId = thisAgent.getAgentId();
-				startGameMessage.gridFile = "/grids/22_2.grid";
+				startGameMessage.gridFile = "/grids/27_2.grid";
 				// Send StartGameMessage(BrokerID)
 				sendMessage(server, startGameMessage);
 				reward = 0;
