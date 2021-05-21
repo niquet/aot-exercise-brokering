@@ -34,18 +34,19 @@ public class BrokerBean extends AbstractAgentBean {
 	private List<IAgentDescription> agentDescriptions = null;
 	private GridworldGame gridworldGame = null;
 
+	//OrderID mapped to Order, for all taken orders
 	private final Map<String, Order> orderMap = new HashMap<>();
-	// Worker mapped to position
+	// Worker position
 	// ! -- Get workerId String from workerIdReverseAId to use this map
 	private final Map<String, Position> positionMap = new HashMap<>();
 
-	/* A Map to map worker Ids to IAgentDescription to get an address with a worker Id
-	 this Map is not registered by the server and but only a mapping for us
-	 */
+	//A Map to map worker Ids to IAgentDescription to get an address with a worker Id. This Map is not registered by the server and only a mapping for us
 	private Map<String, IAgentDescription> workerIdMap = new HashMap<>();
 	// Map AgentID to worker ID
 	private Map<String, String> workerIdReverseAID = new HashMap<>();
+	//Communication Addresses of all active workers
 	private ArrayList<ICommunicationAddress> activeWorkers = new ArrayList<>();
+	// All incoming Ordermessages TODO besserer Kommentar
 	private ArrayList<String> orderMessages = new ArrayList<>();
 
 	// TODO
@@ -94,12 +95,15 @@ public class BrokerBean extends AbstractAgentBean {
 			this.server = serverAgent.getMessageBoxAddress();
 
 			// TODO
+			//send startgamemessage, if game has not started
 			if (!hasGameStarted) {
+				//--In Methode auslagern
 				StartGameMessage startGameMessage = new StartGameMessage();
 				startGameMessage.brokerId = thisAgent.getAgentId();
 				startGameMessage.gridFile = "/grids/24_02.grid";
 				// Send StartGameMessage(BrokerID)
 				sendMessage(server, startGameMessage);
+				//bis hier --
 				reward = 0;
 				this.hasGameStarted = true;
 			}
@@ -113,34 +117,36 @@ public class BrokerBean extends AbstractAgentBean {
 		for (JiacMessage message : memory.removeAll(new JiacMessage())) {
 			Object payload = message.getPayload();
 
+			// if server sends gameStartResponse
 			if (payload instanceof StartGameResponse) {
-				/* do something */
-
 				// TODO
 				StartGameResponse startGameResponse = (StartGameResponse) message.getPayload();
 
 				int maxNumberOfAgents = startGameResponse.initialWorkers.size();
+				// save inital workers globally
 				this.agentDescriptions = getMyWorkerAgents(maxNumberOfAgents);
+				// save gameId for later reference globally
 				this.gameId = startGameResponse.gameId;
 
 				/**
-				 *
 				 * DEBUGGING
-				 *
 				 */
-				System.out.println("SERVER SENDING " + startGameResponse.toString());
+				System.out.println("BROKER RECEIVING " + startGameResponse.toString());
 
 				// TODO handle movements and obstacles
+				// init new game
 				this.gridworldGame = new GridworldGame();
+				// save Obstacles globally
 				this.gridworldGame.obstacles.addAll(startGameResponse.obstacles);
 
-				// Send each Agent their current position
+				// new Position message to send each worker its current position
 				PositionMessage positionMessage = new PositionMessage();
 
 				// TODO nicht mehr worker verwenden als zur Verfügung stehen
 
+				//TODO brauchen wir die grünen Kommentare hier noch?
 				/**
-				 * Initialize the workerIdMap to get the agentDescription and especially the
+				 * Initialize the workerIdMap to get the agentDescription and the
 				 * MailBoxAdress of the workerAgent which we associated with a specific worker
 				 *
 
@@ -150,71 +156,81 @@ public class BrokerBean extends AbstractAgentBean {
 				} */
 
 				/**
-				 * Send the Position messages to each Agent for a specific worker
-				 * PositionMessages are sent to inform the worker where it is located
+				 * Send the Position messages to each Agent,
+				 * for each worker a PositionMessage is sent to inform the worker where it is located,
 				 * additionally put the position of the worker in the positionMap
 				 */
+				// for all workers (nur die, die wir am anfang haben, oder auch später hinzukommende?)
 				for (Worker worker: startGameResponse.initialWorkers) {
-					positionMap.put(worker.id, worker.position);
+					// save worker Position into global positionMap
+					this.positionMap.put(worker.id, worker.position);
+					// Map WorkerIDs to IAgentDescriptions
+					this.workerIdMap.put(worker.id, this.agentDescriptions.get(startGameResponse.initialWorkers.indexOf(worker)));
+					// Map AID (a-04523720, ...) to workerIds (w1, w2, ...)
+					this.workerIdReverseAID.put(this.agentDescriptions.get(startGameResponse.initialWorkers.indexOf(worker)).getAid(), worker.id);
 
-					workerIdMap.put(worker.id, this.agentDescriptions.get(startGameResponse.initialWorkers.indexOf(worker)));
-					workerIdReverseAID.put(this.agentDescriptions.get(startGameResponse.initialWorkers.indexOf(worker)).getAid(), worker.id);
-
-					IAgentDescription agentDescription = workerIdMap.get(worker.id);
+					// get worker comm. Address for the positionMessage from agentDescription
+					// --in Methode auslagern
+					IAgentDescription agentDescription = this.workerIdMap.get(worker.id);
 					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
 
+					// fill in the Position message
 					positionMessage.workerId = agentDescription.getAid();
 					positionMessage.gameId = startGameResponse.gameId;
 					positionMessage.position = worker.position;
 					positionMessage.workerIdForServer = worker.id;
 					//System.out.println("ADRESS IS " + workerAddress);
-
+					// send positionMessage to worker
 					sendMessage(workerAddress, positionMessage);
-					//break;
+					// bis hier--
 				}
-
 				// TODO maxturns fehlt
-
 			}
 
+			// if Broker receives a positionMessage,
 			if (payload instanceof PositionConfirm) {
 				PositionConfirm positionConfirm = (PositionConfirm) message.getPayload();
+				//and it was not for him,
 				if(positionConfirm.state == Result.FAIL) {
-					String workerId = workerIdReverseAID.get(positionConfirm.workerId);
+					// get the complaining workers id and Agentdescription and from there its comm. Address
+					String workerId = this.workerIdReverseAID.get(positionConfirm.workerId);
 					IAgentDescription agentDescription = workerIdMap.get(workerId);
 					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
 
+					// create,
 					PositionMessage positionMessage = new PositionMessage();
-
+					// fill in
 					positionMessage.workerId = agentDescription.getAid();
 					positionMessage.gameId = positionConfirm.gameId;
 					positionMessage.position = positionMap.get(workerId);
 					positionMessage.workerIdForServer = workerId;
-
+					// and send new PositionMessage to the worker
 					sendMessage(workerAddress, positionMessage);
 				} else {
-					activeWorkers.add(message.getSender());
-					for (String orderId: orderMessages) {
+					// if positionMessage was send to and received by right worker
+					// add worker to active workers
+					this.activeWorkers.add(message.getSender());
+					// for each unassigned order
+					for (String orderId: this.orderMessages) {
+						// find closest worker to order
 						ICommunicationAddress workerAddress = decideOrderAssigment(this.orderMap.get(orderId));
+						// if worker who sent positionConfirm(success) is closest
 						if(workerAddress.equals(message.getSender())){
+							// assign order to him
 							AssignOrderMessage assignOrderMessage = new AssignOrderMessage();
 							assignOrderMessage.order = this.orderMap.get(orderId);
 							assignOrderMessage.gameId = gameId;
 							assignOrderMessage.server = this.server;
-							if(activeWorkers.contains(workerAddress)){
-								sendMessage(workerAddress, assignOrderMessage);
-							}
+							sendMessage(workerAddress, assignOrderMessage);
 						}
 					}
 				}
-
 			}
 
-
+			// if Broker receives a new Order
 			if (payload instanceof OrderMessage) {
 
-				// TODO entscheide, ob wir die Order wirklich annehmen wollen / können
-				// Take Order ?!
+				// accept it with takeOrderMessage
 				OrderMessage orderMessage = (OrderMessage) message.getPayload();
 				TakeOrderMessage takeOrderMessage = new TakeOrderMessage();
 				takeOrderMessage.orderId = orderMessage.order.id;
@@ -223,78 +239,73 @@ public class BrokerBean extends AbstractAgentBean {
 				sendMessage(server, takeOrderMessage);
 
 				/**
-				 *
 				 * DEBUGGING
-				 *
 				 */
-				System.out.println("SERVER SENDING " + orderMessage.toString());
+				System.out.println("BROKER RECEIVING " + orderMessage.toString());
 
-				// Save order into orderMap
+				// Save order into global orderMap
 				Order order = ((OrderMessage) message.getPayload()).order;
 				this.orderMap.put(order.id, order);
 
 			}
 
+			// if server responds to takeOrderMessage
 			if (payload instanceof TakeOrderConfirm) {
 
 				// TODO
-				// Got Order ?!
+				// get confirmation state (fail or success)
 				TakeOrderConfirm takeOrderConfirm = (TakeOrderConfirm) message.getPayload();
 				Result result = takeOrderConfirm.state;
 
 				/**
-				 *
 				 * DEBUGGING
-				 *
 				 */
-				System.out.println("SERVER SENDING " + takeOrderConfirm.toString());
+				System.out.println("BROKER RECEIVING " + takeOrderConfirm.toString());
 
+				// if order could not be taken
 				if (result == Result.FAIL) {
-					// Handle failed confirmation
-
 					// Remove order from orderMap as it was rejected by the server
 					this.orderMap.remove(takeOrderConfirm.orderId);
 					continue;
 				}
 
 
-				// TODO send serverAddress
-				// Assign order to Worker(Bean)
-				// Send the order to the first agent
+				// If server accepted the broker taking the order (only reachable if result is SUCCESS)
+				// put together assignOrderMessage for order
 				AssignOrderMessage assignOrderMessage = new AssignOrderMessage();
 				assignOrderMessage.order = this.orderMap.get(takeOrderConfirm.orderId);
 				assignOrderMessage.gameId = takeOrderConfirm.gameId;
 				assignOrderMessage.server = this.server;
+				// decide which worker gets order
 				ICommunicationAddress workerAddress = decideOrderAssigment(assignOrderMessage.order);
+				// if determined worker is active try to assign order to it, else put order into global accepted order List (orderMessages)
 				if(activeWorkers.contains(workerAddress)){
 					sendMessage(workerAddress, assignOrderMessage);
 				} else {
-					orderMessages.add(takeOrderConfirm.orderId);
+					this.orderMessages.add(takeOrderConfirm.orderId);
 				}
 
 			}
 
+			// if worker received assignOrder and sent its response
 			if (payload instanceof AssignOrderConfirm) {
-
 				// TODO
 				AssignOrderConfirm assignOrderConfirm = (AssignOrderConfirm) message.getPayload();
 				Result result = assignOrderConfirm.state;
 
+				//if worker refused order
 				if (result == Result.FAIL) {
-					// Handle failed confirmation
 					// TODO
 					ICommunicationAddress alternativeWorkerAddress = getAlternativeWorkerAddress(((AssignOrderConfirm) message.getPayload()).workerId);
 					reassignOrder(alternativeWorkerAddress, assignOrderConfirm);
-
 					continue;
 				}
 
 				orderMessages.remove(assignOrderConfirm.orderId);
-
 				// TODO Inform other workers that this task is taken - notwendig??
 
 			}
-
+			// if worker completed Order
 			if (payload instanceof OrderCompleted) {
 
 				OrderCompleted orderCompleted = (OrderCompleted) message.getPayload();
@@ -311,6 +322,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 			}
 
+			// if worker changed position
 			if (payload instanceof PositionUpdate) {
 
 				PositionUpdate positionUpdate = (PositionUpdate) message.getPayload();
@@ -318,10 +330,10 @@ public class BrokerBean extends AbstractAgentBean {
 
 			}
 
+			// if game ends
 			if (payload instanceof EndGameMessage) {
-
+				// TODO lernen
 				EndGameMessage endGameMessage = (EndGameMessage) message.getPayload();
-				// TODO lernen lernen lernen lol
 				System.out.println("Reward: " + reward);
 			}
 
@@ -342,7 +354,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 	}
 
-	/** get a different workerAddress than the one passed as the argument */
+	/** determine worker with shortest distance to order */
 	private ICommunicationAddress decideOrderAssigment(Order order) {
 
 		ICommunicationAddress workerAddress = null;
@@ -352,10 +364,10 @@ public class BrokerBean extends AbstractAgentBean {
 		int minimum = Integer.MAX_VALUE;
 		int currentDistance = 0;
 
-		String[] workerAgentId = workerIdReverseAID.values().toArray(new String[0]);
+		String[] workerAgentId = this.workerIdReverseAID.values().toArray(new String[0]);
 		for (String currentWorkerId: workerAgentId) {
 
-			currentWorkerPosition = positionMap.get(currentWorkerId);
+			currentWorkerPosition = this.positionMap.get(currentWorkerId);
 			currentDistance = orderPosition.distance(currentWorkerPosition);
 			if (orderPosition.distance(currentWorkerPosition) < minimum) {
 				minimum = currentDistance;
@@ -368,7 +380,9 @@ public class BrokerBean extends AbstractAgentBean {
 
 	}
 
-	/** get a different workerAddress than the one passed as the argument */
+	/**
+	 * get a different workerAddress than the one passed as the argument
+	 */
 	private ICommunicationAddress getAlternativeWorkerAddress(String workerId) {
 		ICommunicationAddress workerAddress = null;
 		for(IAgentDescription agentDescription: this.agentDescriptions) {
@@ -387,7 +401,9 @@ public class BrokerBean extends AbstractAgentBean {
 		return workerAddress;
 	}
 
-	/** get a different workerAddress than the one passed as the argument */
+	/**
+	 * sends assignOrderMessage to workerAdress
+	*/
 	private void reassignOrder(ICommunicationAddress workerAddress, AssignOrderConfirm assignOrderConfirm) {
 
 		// TODO
@@ -400,7 +416,9 @@ public class BrokerBean extends AbstractAgentBean {
 
 	}
 
-	/** example function for using getAgentNode() and retrieving a list of all worker agents */
+	/**
+	 * example function for using getAgentNode() and retrieving a list of all worker agents
+	 */
 	private List<IAgentDescription> getMyWorkerAgents(int maxNum) {
 		String nodeId = thisAgent.getAgentNode().getUUID();
 		return thisAgent.searchAllAgents(new AgentDescription(null, null, null, null, null, nodeId)).stream()
@@ -409,7 +427,9 @@ public class BrokerBean extends AbstractAgentBean {
 				.collect(Collectors.toList());
 	}
 
-	/** example function to send messages to other agents */
+	/**
+	 * example function to send messages to other agents
+	 */
 	private void sendMessage(ICommunicationAddress receiver, IFact payload) {
 		Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
 		JiacMessage message = new JiacMessage(payload);
