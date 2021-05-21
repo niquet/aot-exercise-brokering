@@ -94,12 +94,12 @@ public class WorkerBean extends AbstractAgentBean {
 		/*
 		 * this is executed periodically by the agent; check the BrokerBean.java for an example.
 		 */
-
+		time += 1;
 		// if we already have assignments
 		if(!priorityQueue.isEmpty()) {
 
 			Order firstOrder = priorityQueue.peek();
-			time += 1;
+
 
 			if(time > firstOrder.deadline) {
 				priorityQueue.poll();

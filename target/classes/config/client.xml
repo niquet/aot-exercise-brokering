@@ -52,7 +52,7 @@
 	<bean name="WorkerAgent" parent="SimpleAgent" scope="prototype">
 		<property name="agentBeans">
 			<list>
-				<bean name="WorkerBean_dummyVariation" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean_dummyVariation" scope="prototype">
+				<bean name="WorkerBean_variation" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean_variation" scope="prototype">
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="1000" />
 				</bean>

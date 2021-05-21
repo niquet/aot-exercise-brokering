@@ -28,7 +28,7 @@ import java.util.PriorityQueue;
 
 
 
-public class WorkerBean_changedVariation extends AbstractAgentBean {
+public class WorkerBean_priorityQueue extends AbstractAgentBean {
 	/*
 	 * If you want to create your variations you can simply create a copy of your
 	 * working WorkerBean or BrokerBean and rename as you like. Include your variation in the client.xml by
@@ -47,7 +47,9 @@ public class WorkerBean_changedVariation extends AbstractAgentBean {
 		public int compare(Order o1, Order o2) {
 			int p1 = position.distance(o1.position);
 			int p2 = position.distance(o2.position);
-			if(p1 == p2) return (o1.deadline - o1.value < o2.deadline - o2.value) ?  -1 :  1;
+			/*if(o1.deadline - o1.value < o2.deadline - o2.value){
+				if(p1 + time + o2.position.distance(o1.position) < o2.deadline) return -1;
+			} else*/
 			if(p1 < p2) return -1;
 			if(p1 > p2) return 1;
 			//if(o1.deadline < o2.deadline) return -1;
@@ -84,7 +86,7 @@ public class WorkerBean_changedVariation extends AbstractAgentBean {
 		 *
 		 * As an example it is added here at the beginning.
 		 */
-		memory.attach(new WorkerBean_changedVariation.MessageObserver(), new JiacMessage());
+		memory.attach(new WorkerBean_priorityQueue.MessageObserver(), new JiacMessage());
 
 		log.info("starting...");
 	}
@@ -94,16 +96,16 @@ public class WorkerBean_changedVariation extends AbstractAgentBean {
 		/*
 		 * this is executed periodically by the agent; check the BrokerBean.java for an example.
 		 */
-
+		time += 1;
 		// if we already have assignments
 		if(!priorityQueue.isEmpty()) {
 
 			Order firstOrder = priorityQueue.peek();
-			time += 1;
+
 			if(time > firstOrder.deadline) {
 				priorityQueue.poll();
 				if(!priorityQueue.isEmpty())
-					firstOrder = priorityQueue.peek();
+				firstOrder = priorityQueue.peek();
 				else return;
 			}
 			/**
@@ -165,13 +167,9 @@ public class WorkerBean_changedVariation extends AbstractAgentBean {
 						assignOrderConfirm.state = Result.FAIL;
 						priorityQueue.add(order);
 
-						if(possibleEnd()) {
 						orderToAddress.put(order, server);
 
 						assignOrderConfirm.state = Result.SUCCESS;
-						} else {
-							priorityQueue.remove(order);
-						}
 
 						if (priorityQueue.contains(order) && handleOrder == null) handleOrder = order;
 						sendMessage(broker, assignOrderConfirm);
@@ -229,6 +227,7 @@ public class WorkerBean_changedVariation extends AbstractAgentBean {
 
 					if(workerConfirm.action == WorkerAction.ORDER){
 						priorityQueue.poll();
+						System.out.println("SUCCESS " + handleOrder);
 						handleOrder = priorityQueue.peek();
 						hasArrivedAtTarget = false;
 					}
@@ -323,13 +322,13 @@ public class WorkerBean_changedVariation extends AbstractAgentBean {
 					Position E = new Position(current.x + 1, current.y);
 					Position W = new Position(current.x - 1, current.y);
 					distances = new int[]{target.distance(E), target.distance(W)};
-					return (distances[0] >= distances[1]) ? WorkerAction.EAST:WorkerAction.WEST;
+					return (distances[0] > distances[1]) ? WorkerAction.EAST:WorkerAction.WEST;
 				case EAST:
 				case WEST:
 					Position N = new Position(current.x, current.y - 1);
 					Position S = new Position(current.x, current.y + 1);
 					distances = new int[]{target.distance(N), target.distance(S)};
-					return (distances[0] >= distances[1]) ? WorkerAction.NORTH:WorkerAction.SOUTH;
+					return (distances[0] > distances[1]) ? WorkerAction.NORTH:WorkerAction.SOUTH;
 			}
 
 		} else {
