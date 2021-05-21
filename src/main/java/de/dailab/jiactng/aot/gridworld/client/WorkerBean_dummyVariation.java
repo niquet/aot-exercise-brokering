@@ -1,9 +1,12 @@
 package de.dailab.jiactng.aot.gridworld.client;
 
 
+import de.dailab.jiactng.agentcore.AbstractAgentBean;
 import de.dailab.jiactng.agentcore.action.Action;
 import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
 import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
+import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
+import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.aot.gridworld.messages.*;
 import de.dailab.jiactng.aot.gridworld.model.Order;
 import de.dailab.jiactng.aot.gridworld.model.Position;
@@ -12,12 +15,11 @@ import org.sercho.masp.space.event.SpaceEvent;
 import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
 
-import de.dailab.jiactng.agentcore.AbstractAgentBean;
-import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
-import de.dailab.jiactng.agentcore.knowledge.IFact;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.PriorityQueue;
 
 
 /**
@@ -26,7 +28,7 @@ import java.util.*;
 
 
 
-public class WorkerBean extends AbstractAgentBean {
+public class WorkerBean_dummyVariation extends AbstractAgentBean {
 	/*
 	 * this bean represents one of your Worker agents (i.e. each Worker Agent you initialize with this bean
 	 * will have a separate copy); it's structure will be similar to your Broker agent's
@@ -46,10 +48,10 @@ public class WorkerBean extends AbstractAgentBean {
 	private final Comparator<Order> compareOrder = new Comparator<Order>() {
 		@Override
 		public int compare(Order o1, Order o2) {
-			//int p1 = position.distance(o1.position);
-			//int p2 = position.distance(o2.position);
-			//if(p1 < p2) return -1;
-			//if(p1 > p2) return 1;
+			/*int p1 = position.distance(o1.position);
+			int p2 = position.distance(o2.position);
+			if(p1 < p2) return -1;
+			if(p1 > p2) return 1;*/
 			//if(o1.deadline < o2.deadline) return -1;
 			//if(o1.deadline > o2.deadline) return 1;
 			return 0;
@@ -149,11 +151,7 @@ public class WorkerBean extends AbstractAgentBean {
 					Order order = assignOrderMessage.order;
 					ICommunicationAddress server = assignOrderMessage.server;
 
-					//TODO position nicht notwendig?? Ändern!
 					if (position != null) {
-						//Map<Order, ICommunicationAddress> orderWithServer = new HashMap<>();
-
-						// TODO do something / evaluate
 
 						AssignOrderConfirm assignOrderConfirm = new AssignOrderConfirm();
 						assignOrderConfirm.orderId = order.id;
@@ -278,29 +276,6 @@ public class WorkerBean extends AbstractAgentBean {
 		System.out.println("WORKER SENDING " + payload);
 	}
 
-	/** sort the orders according to a score and put them into a queue
-	 *
-	 */
-	private void sortOrders() {
-		// TODO
-	}
-
-	/** evaluate order score */
-	private void evaluateOrder(Order order) {
-		// TODO
-	}
-
-	/** evaluate when we'll probably be at the target to decide if move is possible before deadline */
-	private int possibleEnd(Position target){
-		Position goal = position;
-		int time = 0;
-		for (Order order: priorityQueue) {
-			time += order.position.distance(goal) + 1;
-			goal = order.position;
-		}
-		time += target.distance(goal);
-		return time;
-	}
 
 	/** calculate next move */
 	private WorkerAction getNextMove(Position current, Position target, Boolean lastMoveFailed) {
@@ -311,26 +286,6 @@ public class WorkerBean extends AbstractAgentBean {
 		}
 
 		int[] distances = null;
-
-		if (lastMoveFailed) {
-
-			switch (lastMove) {
-				case NORTH:
-				case SOUTH:
-					Position E = new Position(current.x + 1, current.y);
-					Position W = new Position(current.x - 1, current.y);
-					distances = new int[]{target.distance(E), target.distance(W)};
-					return (distances[0] > distances[1]) ? WorkerAction.EAST:WorkerAction.WEST;
-				case EAST:
-				case WEST:
-					Position N = new Position(current.x, current.y - 1);
-					Position S = new Position(current.x, current.y + 1);
-					distances = new int[]{target.distance(N), target.distance(S)};
-					return (distances[0] > distances[1]) ? WorkerAction.NORTH:WorkerAction.SOUTH;
-			}
-
-		} else {
-
 			// [N, S, E, W]
 			Position N = new Position(current.x, current.y - 1);
 			Position S = new Position(current.x, current.y + 1);
@@ -338,8 +293,6 @@ public class WorkerBean extends AbstractAgentBean {
 			Position W = new Position(current.x - 1, current.y);
 
 			distances = new int[]{target.distance(N), target.distance(S), target.distance(E), target.distance(W)};
-
-		}
 
 		WorkerAction workerAction = null;
 		int index = -1;

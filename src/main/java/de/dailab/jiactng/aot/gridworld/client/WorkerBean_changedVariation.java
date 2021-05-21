@@ -1,9 +1,12 @@
 package de.dailab.jiactng.aot.gridworld.client;
 
 
+import de.dailab.jiactng.agentcore.AbstractAgentBean;
 import de.dailab.jiactng.agentcore.action.Action;
 import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
 import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
+import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
+import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.aot.gridworld.messages.*;
 import de.dailab.jiactng.aot.gridworld.model.Order;
 import de.dailab.jiactng.aot.gridworld.model.Position;
@@ -12,12 +15,11 @@ import org.sercho.masp.space.event.SpaceEvent;
 import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
 
-import de.dailab.jiactng.agentcore.AbstractAgentBean;
-import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
-import de.dailab.jiactng.agentcore.knowledge.IFact;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.PriorityQueue;
 
 
 /**
@@ -26,30 +28,28 @@ import java.util.*;
 
 
 
-public class WorkerBean extends AbstractAgentBean {
+public class WorkerBean_changedVariation extends AbstractAgentBean {
 	/*
-	 * this bean represents one of your Worker agents (i.e. each Worker Agent you initialize with this bean
-	 * will have a separate copy); it's structure will be similar to your Broker agent's
+	 * If you want to create your variations you can simply create a copy of your
+	 * working WorkerBean or BrokerBean and rename as you like. Include your variation in the client.xml by
+	 * naming the new agent in the client node list and have that new agents class point to
+	 * your new bean. You can find an example in the client.xml
 	 *
-	 *
-	 * note that the number of workers may vary from grid to grid, but the number of worker
-	 * agents will always be the same (specified in the client.xml); you will have to have your Broker somehow tell
-	 * the worker agents which of them are currently needed and who may idle
-	 *
-	 * you could, theoretically, also control all your Workers from a single worker agent (and
-	 * bean), or even implement both the Broker and the Worker in the same bean, but that would
-	 * of course defeat the purpose of this exercise and may not be possible in "real life"
+	 * Note: As this method most likely will reuse a lot of code from your standard implementation
+	 * this is not the most elegant way to do this but since your Agent and AgentBean should represented
+	 * the real world and for the sake of simplicity it is allowed/desired. There will be no point deduction
+	 * for "bad coding" behavior on that matter.
 	 */
-
 	private final Map<String, Order> currentOrders = new HashMap<>();
 	private final Map<Order, ICommunicationAddress> orderToAddress = new HashMap<>();
 	private final Comparator<Order> compareOrder = new Comparator<Order>() {
 		@Override
 		public int compare(Order o1, Order o2) {
-			//int p1 = position.distance(o1.position);
-			//int p2 = position.distance(o2.position);
-			//if(p1 < p2) return -1;
-			//if(p1 > p2) return 1;
+			int p1 = position.distance(o1.position);
+			int p2 = position.distance(o2.position);
+			if(p1 == p2) return (o1.deadline - o1.value < o2.deadline - o2.value) ?  -1 :  1;
+			if(p1 < p2) return -1;
+			if(p1 > p2) return 1;
 			//if(o1.deadline < o2.deadline) return -1;
 			//if(o1.deadline > o2.deadline) return 1;
 			return 0;
@@ -66,6 +66,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private String workerIdForServer = null;
 	private ICommunicationAddress broker = null;
+	private int time;
 
 
 	@Override
@@ -83,7 +84,7 @@ public class WorkerBean extends AbstractAgentBean {
 		 *
 		 * As an example it is added here at the beginning.
 		 */
-		memory.attach(new MessageObserver(), new JiacMessage());
+		memory.attach(new WorkerBean_changedVariation.MessageObserver(), new JiacMessage());
 
 		log.info("starting...");
 	}
@@ -98,22 +99,22 @@ public class WorkerBean extends AbstractAgentBean {
 		if(!priorityQueue.isEmpty()) {
 
 			Order firstOrder = priorityQueue.peek();
-
+			time += 1;
 			/**
 			 * We handle the order
 			 * send message to server
 			 */
 
-				if(position == null)
-					return;
-				WorkerMessage move = new WorkerMessage();
-				move.action = getNextMove(position, firstOrder.position, lastMoveFailed);
-				lastMove = move.action;
-				move.gameId = gameId;
-				move.workerId = workerIdForServer;
-				//System.out.println("WORKERIDFORSERVER " + workerIdForServer);
+			if(position == null)
+				return;
+			WorkerMessage move = new WorkerMessage();
+			move.action = getNextMove(position, firstOrder.position, lastMoveFailed);
+			lastMove = move.action;
+			move.gameId = gameId;
+			move.workerId = workerIdForServer;
+			//System.out.println("WORKERIDFORSERVER " + workerIdForServer);
 
-				sendMessage(orderToAddress.get(firstOrder), move);
+			sendMessage(orderToAddress.get(firstOrder), move);
 
 		}
 
@@ -149,29 +150,25 @@ public class WorkerBean extends AbstractAgentBean {
 					Order order = assignOrderMessage.order;
 					ICommunicationAddress server = assignOrderMessage.server;
 
-					//TODO position nicht notwendig?? Ändern!
 					if (position != null) {
-						//Map<Order, ICommunicationAddress> orderWithServer = new HashMap<>();
-
-						// TODO do something / evaluate
 
 						AssignOrderConfirm assignOrderConfirm = new AssignOrderConfirm();
 						assignOrderConfirm.orderId = order.id;
 						assignOrderConfirm.gameId = assignOrderMessage.gameId;
 						assignOrderConfirm.workerId = thisAgent.getAgentId();
 						assignOrderConfirm.state = Result.FAIL;
+						priorityQueue.add(order);
 
-						//TODO is it possible for us to complete this order - Funktion erstellen mit der man Priority Queue neu evaluiert
-						//if(possibleEnd(order.position) < order.deadline) {
-							orderToAddress.put(order, server);
-							//currentOrders.put(order.id, order);
-							priorityQueue.add(order);
-							//orderQueue.push(order.id);
-							assignOrderConfirm.state = Result.SUCCESS;
-						//}
+						if(possibleEnd()) {
+						orderToAddress.put(order, server);
+
+						assignOrderConfirm.state = Result.SUCCESS;
+						} else {
+							priorityQueue.remove(order);
+						}
 
 						if (priorityQueue.contains(order) && handleOrder == null) handleOrder = order;
-							sendMessage(broker, assignOrderConfirm);
+						sendMessage(broker, assignOrderConfirm);
 					}
 				}
 
@@ -199,7 +196,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 					positionConfirm.state = Result.SUCCESS;
 					sendMessage(brokerAddress, positionConfirm);
-
+					time = 1;
 					/**
 					 * Only set position if it is for us
 					 */
@@ -291,15 +288,16 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	/** evaluate when we'll probably be at the target to decide if move is possible before deadline */
-	private int possibleEnd(Position target){
+	private boolean possibleEnd(){
 		Position goal = position;
-		int time = 0;
+		int jetzt = time;
+		boolean inTime = true;
 		for (Order order: priorityQueue) {
-			time += order.position.distance(goal) + 1;
+			jetzt += order.position.distance(goal);
+			if(jetzt > order.deadline) return false;
 			goal = order.position;
 		}
-		time += target.distance(goal);
-		return time;
+		return inTime;
 	}
 
 	/** calculate next move */
@@ -320,13 +318,13 @@ public class WorkerBean extends AbstractAgentBean {
 					Position E = new Position(current.x + 1, current.y);
 					Position W = new Position(current.x - 1, current.y);
 					distances = new int[]{target.distance(E), target.distance(W)};
-					return (distances[0] > distances[1]) ? WorkerAction.EAST:WorkerAction.WEST;
+					return (distances[0] >= distances[1]) ? WorkerAction.EAST:WorkerAction.WEST;
 				case EAST:
 				case WEST:
 					Position N = new Position(current.x, current.y - 1);
 					Position S = new Position(current.x, current.y + 1);
 					distances = new int[]{target.distance(N), target.distance(S)};
-					return (distances[0] > distances[1]) ? WorkerAction.NORTH:WorkerAction.SOUTH;
+					return (distances[0] >= distances[1]) ? WorkerAction.NORTH:WorkerAction.SOUTH;
 			}
 
 		} else {
@@ -382,5 +380,6 @@ public class WorkerBean extends AbstractAgentBean {
 		if (action == WorkerAction.WEST)  position = new Position(position.x - 1, position.y);
 		if (action == WorkerAction.EAST)  position = new Position(position.x + 1, position.y);
 	}
+
 
 }

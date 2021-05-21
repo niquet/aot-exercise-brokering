@@ -37,7 +37,7 @@
 		</property>
 	</bean>
 	
-	<bean name="WorkerAgent_old" parent="SimpleAgent" scope="prototype">
+	<bean name="WorkerAgent" parent="SimpleAgent" scope="prototype">
 		<property name="agentBeans">
 			<list>
 				<bean name="WorkerBean" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean" scope="prototype">
@@ -49,7 +49,7 @@
 	</bean>
 
 	<!-- use this method to include your variations of workers and brokers -->
-	<bean name="WorkerAgent" parent="SimpleAgent" scope="prototype">
+	<bean name="WorkerAgent_new" parent="SimpleAgent" scope="prototype">
 		<property name="agentBeans">
 			<list>
 				<bean name="WorkerBean_variation" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean_variation" scope="prototype">

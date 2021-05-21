@@ -47,9 +47,9 @@ public class WorkerBean_variation extends AbstractAgentBean {
 		public int compare(Order o1, Order o2) {
 			int p1 = position.distance(o1.position);
 			int p2 = position.distance(o2.position);
-			if(o1.deadline - o1.value < o2.deadline - o2.value){
+			/*if(o1.deadline - o1.value < o2.deadline - o2.value){
 				if(p1 + time + o2.position.distance(o1.position) < o2.deadline) return -1;
-			} else
+			} else*/
 			if(p1 < p2) return -1;
 			if(p1 > p2) return 1;
 			//if(o1.deadline < o2.deadline) return -1;
@@ -100,7 +100,7 @@ public class WorkerBean_variation extends AbstractAgentBean {
 		// if we already have assignments
 		if(!priorityQueue.isEmpty()) {
 
-			Order firstOrder = handleOrder; //priorityQueue.peek();
+			Order firstOrder = priorityQueue.peek();
 			time += 1;
 			/**
 			 * We handle the order
