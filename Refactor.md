@@ -21,3 +21,9 @@ In BrokerBean:
 In WorkerBeans:
 -
 -
+
+Ideen:
+-
+- Worker Gebiete einteilen und darin immer wieder schlau positionieren
+- Abstand zwischen Workern maximieren (nur die die nicht gerade arbeiten müssen sich wegbewegen)
+- 
