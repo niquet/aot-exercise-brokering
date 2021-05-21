@@ -296,27 +296,22 @@ public class BrokerBean extends AbstractAgentBean {
 				//if worker refused order
 				if (result == Result.FAIL) {
 					// TODO
+					//give order to different worker
 					ICommunicationAddress alternativeWorkerAddress = getAlternativeWorkerAddress(((AssignOrderConfirm) message.getPayload()).workerId);
 					reassignOrder(alternativeWorkerAddress, assignOrderConfirm);
 					continue;
 				}
-
-				orderMessages.remove(assignOrderConfirm.orderId);
+				// if order was assigned successfully remove order from brokers order List
+				this.orderMessages.remove(assignOrderConfirm.orderId);
 				// TODO Inform other workers that this task is taken - notwendig??
 
 			}
 			// if worker completed Order
 			if (payload instanceof OrderCompleted) {
 
+				// add reward
 				OrderCompleted orderCompleted = (OrderCompleted) message.getPayload();
 				Result result = orderCompleted.state;
-
-				if (result == Result.FAIL) {
-					// TODO Handle failed order completion -> minus points for non handled rewards
-					reward += orderCompleted.reward;
-					continue;
-				}
-
 				reward += orderCompleted.reward;
 				// TODO remove order from the worker specific order queues
 
@@ -324,7 +319,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 			// if worker changed position
 			if (payload instanceof PositionUpdate) {
-
+				// update worker position in position map
 				PositionUpdate positionUpdate = (PositionUpdate) message.getPayload();
 				updateWorkerPosition(positionUpdate.position, positionUpdate.workerId);
 
@@ -333,6 +328,7 @@ public class BrokerBean extends AbstractAgentBean {
 			// if game ends
 			if (payload instanceof EndGameMessage) {
 				// TODO lernen
+				// GAME OVER
 				EndGameMessage endGameMessage = (EndGameMessage) message.getPayload();
 				System.out.println("Reward: " + endGameMessage.totalReward);
 			}
@@ -346,7 +342,10 @@ public class BrokerBean extends AbstractAgentBean {
 	/*
 	 * You can implement some functions and helper methods here.
 	 */
-	/** get a different workerAddress than the one passed as the argument */
+
+	/**
+	 * get a different workerAddress than the one passed as the argument
+	 */
 	private void updateWorkerPosition(Position position, String workerAgentId) {
 
 		String workerId = workerIdReverseAID.get(workerAgentId);
@@ -354,7 +353,9 @@ public class BrokerBean extends AbstractAgentBean {
 
 	}
 
-	/** determine worker with shortest distance to order */
+	/**
+	 * determine worker with shortest distance to order
+	 */
 	private ICommunicationAddress decideOrderAssigment(Order order) {
 
 		ICommunicationAddress workerAddress = null;
@@ -403,6 +404,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 	/**
 	 * sends assignOrderMessage to workerAdress
+	 * TODO -> können wir evtl. zu assignorder umbenennen und direkt für alle assign order messages nutzen
 	*/
 	private void reassignOrder(ICommunicationAddress workerAddress, AssignOrderConfirm assignOrderConfirm) {
 
