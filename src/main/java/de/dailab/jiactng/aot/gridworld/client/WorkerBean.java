@@ -66,6 +66,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private String workerIdForServer = null;
 	private ICommunicationAddress broker = null;
+	private int time;
 
 
 	@Override
@@ -98,6 +99,14 @@ public class WorkerBean extends AbstractAgentBean {
 		if(!priorityQueue.isEmpty()) {
 
 			Order firstOrder = priorityQueue.peek();
+			time += 1;
+
+			if(time > firstOrder.deadline) {
+				priorityQueue.poll();
+				if(!priorityQueue.isEmpty())
+					firstOrder = priorityQueue.peek();
+				else return;
+			}
 
 			/**
 			 * We handle the order
@@ -199,6 +208,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 					positionConfirm.state = Result.SUCCESS;
 					sendMessage(brokerAddress, positionConfirm);
+					time = 1;
 
 					/**
 					 * Only set position if it is for us

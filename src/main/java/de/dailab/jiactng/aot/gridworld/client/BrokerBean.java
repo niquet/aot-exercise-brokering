@@ -334,7 +334,7 @@ public class BrokerBean extends AbstractAgentBean {
 			if (payload instanceof EndGameMessage) {
 				// TODO lernen
 				EndGameMessage endGameMessage = (EndGameMessage) message.getPayload();
-				System.out.println("Reward: " + reward);
+				System.out.println("Reward: " + endGameMessage.totalReward);
 			}
 
 		}

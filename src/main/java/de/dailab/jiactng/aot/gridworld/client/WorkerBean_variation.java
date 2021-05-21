@@ -102,6 +102,12 @@ public class WorkerBean_variation extends AbstractAgentBean {
 
 			Order firstOrder = priorityQueue.peek();
 			time += 1;
+			if(time > firstOrder.deadline) {
+				priorityQueue.poll();
+				if(!priorityQueue.isEmpty())
+				firstOrder = priorityQueue.peek();
+				else return;
+			}
 			/**
 			 * We handle the order
 			 * send message to server

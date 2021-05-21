@@ -101,7 +101,7 @@ public class BrokerBean_RewardOptimization extends AbstractAgentBean {
 			if (!hasGameStarted) {
 				StartGameMessage startGameMessage = new StartGameMessage();
 				startGameMessage.brokerId = thisAgent.getAgentId();
-				startGameMessage.gridFile = "/grids/22_2.grid";
+				startGameMessage.gridFile = "/grids/grid_1.grid";
 				// Send StartGameMessage(BrokerID)
 				sendMessage(server, startGameMessage);
 				reward = 0;
@@ -382,7 +382,7 @@ public class BrokerBean_RewardOptimization extends AbstractAgentBean {
 
 				EndGameMessage endGameMessage = (EndGameMessage) message.getPayload();
 				// TODO lernen lernen lernen lol
-				System.out.println("Reward: " + reward);
+				System.out.println("Reward: " + endGameMessage.totalReward);
 			}
 
 		}

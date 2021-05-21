@@ -100,6 +100,12 @@ public class WorkerBean_changedVariation extends AbstractAgentBean {
 
 			Order firstOrder = priorityQueue.peek();
 			time += 1;
+			if(time > firstOrder.deadline) {
+				priorityQueue.poll();
+				if(!priorityQueue.isEmpty())
+					firstOrder = priorityQueue.peek();
+				else return;
+			}
 			/**
 			 * We handle the order
 			 * send message to server
@@ -223,7 +229,6 @@ public class WorkerBean_changedVariation extends AbstractAgentBean {
 
 					if(workerConfirm.action == WorkerAction.ORDER){
 						priorityQueue.poll();
-						System.out.println("SUCCESS " + handleOrder);
 						handleOrder = priorityQueue.peek();
 						hasArrivedAtTarget = false;
 					}
