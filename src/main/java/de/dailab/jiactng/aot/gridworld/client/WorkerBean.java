@@ -128,9 +128,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 	}
 
-
-
-
+	
 	/*
 	 * You can implement some functions and helper methods here.
 	 */
