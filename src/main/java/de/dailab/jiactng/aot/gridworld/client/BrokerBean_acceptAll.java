@@ -100,7 +100,7 @@ public class BrokerBean_acceptAll extends AbstractAgentBean {
 				//--In Methode auslagern
 				StartGameMessage startGameMessage = new StartGameMessage();
 				startGameMessage.brokerId = thisAgent.getAgentId();
-				startGameMessage.gridFile = "/grids/24_02.grid";
+				startGameMessage.gridFile = "/grids/h_01.grid";
 				// Send StartGameMessage(BrokerID)
 				sendMessage(server, startGameMessage);
 				//bis hier --
@@ -139,8 +139,7 @@ public class BrokerBean_acceptAll extends AbstractAgentBean {
 				// save Obstacles globally
 				this.gridworldGame.obstacles.addAll(startGameResponse.obstacles);
 
-				// new Position message to send each worker its current position
-				PositionMessage positionMessage = new PositionMessage();
+
 
 				// TODO nicht mehr worker verwenden als zur Verfügung stehen
 
@@ -175,6 +174,8 @@ public class BrokerBean_acceptAll extends AbstractAgentBean {
 					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
 
 					// fill in the Position message
+					// new Position message to send each worker its current position
+					PositionMessage positionMessage = new PositionMessage();
 					positionMessage.workerId = agentDescription.getAid();
 					positionMessage.gameId = startGameResponse.gameId;
 					positionMessage.position = worker.position;
