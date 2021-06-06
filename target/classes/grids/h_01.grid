@@ -37,9 +37,13 @@ w3 19 2 100
 w4 19 17 100
 w5 0 13 100
 
+<<<<<<< HEAD
 Dieses Grid dient als ein Beispiel für ein Grid, das wir zum aktuellen Zeitpunkt noch sehr schlecht lösen.
 Da wir am Rand des Grids Worker haben, die Aufgaben übernehmen wollen, werden sie angenommen und vermeindlich schnell abgearbeitet.
 Da wir aber einen Rand aus unüberwindbaren Hindernissen haben können die Angenommenen Aufgaben nicht erledigt werden und sorgen
 somit ingesamt für einen extrem schlechten Reward von beispielsweise -289.
 Mit einer besseren Wegfindung sollte es zukünftig möglich sein zu erkennen, das Worker1 der einzige ist, der die Aufgaben erledigen
 kann, sodass dieser schnell genug anfängt loszulaufen und alle Aufgaben erfolgreich erledigen kann.
+=======
+Dieses Grid dient als ein Beispiel für ein Grid, das wir zum aktuellen Zeitpunkt noch sehr schlecht lösen
+>>>>>>> origin/master

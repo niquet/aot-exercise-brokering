@@ -138,8 +138,7 @@ public class BrokerBean extends AbstractAgentBean {
 				this.gridworldGame = new GridworldGame();
 				this.gridworldGame.obstacles.addAll(startGameResponse.obstacles);
 
-				// Send each Agent their current position
-				PositionMessage positionMessage = new PositionMessage();
+
 
 				// TODO nicht mehr worker verwenden als zur Verfügung stehen
 
@@ -167,6 +166,8 @@ public class BrokerBean extends AbstractAgentBean {
 					IAgentDescription agentDescription = workerIdMap.get(worker.id);
 					ICommunicationAddress workerAddress = agentDescription.getMessageBoxAddress();
 
+					// Send each Agent their current position
+					PositionMessage positionMessage = new PositionMessage();
 					positionMessage.workerId = agentDescription.getAid();
 					positionMessage.gameId = startGameResponse.gameId;
 					positionMessage.position = worker.position;
